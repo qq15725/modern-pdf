@@ -5,12 +5,32 @@
   <title>Playground</title>
 </head>
 <body>
-  <div>Playground</div>
+  <iframe style="border: none;"></iframe>
 
   <script type="module">
-    import { one } from './src'
+    import { Pdf } from './src'
 
-    console.log(one)
+    const pdf = new Pdf({
+      colorSpace: 'cmyk',
+      pages: [
+        {
+          width: 300,
+          height: 600,
+          children: [
+            { type: 'image', src: '/docs/assets/test.jpg', rotate: 60, width: 50, height: 50 },
+            { type: 'text', text: 'abc', rotate: 90, left: 100, top: 100, fontSize: 20, color: '#FF00FF' },
+          ],
+        },
+      ],
+    })
+
+    pdf.generate().then(() => {
+      console.log(pdf.data)
+      const iframe = document.querySelector('iframe')
+      iframe.src = pdf.toUrl()
+      iframe.width = 300
+      iframe.height = 600
+    })
   </script>
 </body>
 </html>

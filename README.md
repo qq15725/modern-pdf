@@ -1,35 +1,40 @@
-<h1 align="center">starter-ts</h1>
+<h1 align="center">modern-pdf</h1>
 
 <p align="center">
-  <a href="https://unpkg.com/starter-ts">
-    <img src="https://img.shields.io/bundlephobia/minzip/starter-ts" alt="Minzip">
+  <a href="https://unpkg.com/modern-pdf">
+    <img src="https://img.shields.io/bundlephobia/minzip/modern-pdf" alt="Minzip">
   </a>
-  <a href="https://www.npmjs.com/package/starter-ts">
-    <img src="https://img.shields.io/npm/v/starter-ts.svg" alt="Version">
+  <a href="https://www.npmjs.com/package/modern-pdf">
+    <img src="https://img.shields.io/npm/v/modern-pdf.svg" alt="Version">
   </a>
-  <a href="https://www.npmjs.com/package/starter-ts">
-    <img src="https://img.shields.io/npm/dm/starter-ts" alt="Downloads">
+  <a href="https://www.npmjs.com/package/modern-pdf">
+    <img src="https://img.shields.io/npm/dm/modern-pdf" alt="Downloads">
   </a>
-  <a href="https://github.com/qq15725/starter-ts/issues">
-    <img src="https://img.shields.io/github/issues/qq15725/starter-ts" alt="Issues">
+  <a href="https://github.com/qq15725/modern-pdf/issues">
+    <img src="https://img.shields.io/github/issues/qq15725/modern-pdf" alt="Issues">
   </a>
-  <a href="https://github.com/qq15725/starter-ts/blob/main/LICENSE">
-    <img src="https://img.shields.io/npm/l/starter-ts.svg" alt="License">
+  <a href="https://github.com/qq15725/modern-pdf/blob/main/LICENSE">
+    <img src="https://img.shields.io/npm/l/modern-pdf.svg" alt="License">
   </a>
 </p>
 
-## Try it now!
+## Usage
 
-### GitHub Template
+```ts
+import { Pdf } from 'modern-pdf'
 
-[Create a repo from this template on GitHub](https://github.com/qq15725/starter-ts/generate).
+const pdf = new Pdf({
+  pages: [
+    {
+      width: 300,
+      height: 600,
+      children: [
+        { type: 'image', src: '/test.jpg', rotate: 60, width: 50, height: 50 },
+        { type: 'text', text: 'test', rotate: 90, left: 100, top: 100, fontSize: 20, color: '#FF00FF' },
+      ],
+    },
+  ],
+})
 
-### Clone to local
-
-If you prefer to do it manually with the cleaner git history
-
-```bash
-npx degit qq15725/starter-ts my-ts-lib
-cd my-ts-lib
-pnpm i # If you don't have pnpm installed, run: npm install -g pnpm
+pdf.save('download.pdf')
 ```
