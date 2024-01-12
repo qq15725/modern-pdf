@@ -12,7 +12,10 @@ export interface TextProperties {
   top?: number
   text?: string
   fontSize?: number
+  fontWeight?: number | string
   lineHeight?: number
+  letterSpacing?: number
+  wordSpacing?: number
   rotate?: number
   color?: AnyColor
 }
@@ -22,7 +25,10 @@ export class Text extends Element {
   top?: number
   text?: string
   fontSize?: number
+  fontWeight?: number | string
   lineHeight?: number
+  letterSpacing?: number
+  wordSpacing?: number
   rotate?: number
   color?: AnyColor
 
@@ -49,7 +55,10 @@ export class Text extends Element {
       left = 0,
       top = 0,
       fontSize = 14,
+      fontWeight = 400,
       lineHeight = 1,
+      letterSpacing = 0,
+      wordSpacing = 0,
       rotate = 0,
       text = '',
       color = '#000000',
@@ -84,10 +93,28 @@ export class Text extends Element {
     }
 
     const font = resources.get('Helvetica')!
+    const fontFace = font.resourceId
+    let fontStyle = 'normal'
+    switch (fontWeight) {
+      case 400:
+      case 'normal':
+        fontStyle = 'normal'
+        break
+      case 700:
+      case 'bold':
+        fontStyle = 'bold'
+        break
+      default:
+        fontStyle = `${ fontWeight } ${ fontStyle }`
+    }
 
     writer.write('BT')
-    writer.write(`/${ font.resourceId } ${ fontSize } Tf`) // font face, style, size
+    writer.write(`/${ fontFace } ${ fontStyle } ${ fontSize } Tf`) // font face, style, size
     writer.write(`${ height } TL`) // line spacing
+    writer.write(`${ letterSpacing } Tc`) // char spacing
+    writer.write(`${ 100 } Tz`) // horizontal scale
+    writer.write(`${ 0 } Tr`) // rendering mode
+    writer.write(`${ wordSpacing } Tw`) // word spacing
     writer.write(`${ sx } ${ shy } ${ shx } ${ sy } ${ tx } ${ ty } Tm`) // position
     writer.write(textColor) // color
     writer.write(`(${ text }) Tj`) // content
