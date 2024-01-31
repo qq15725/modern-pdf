@@ -51,7 +51,7 @@ const pdf = new Pdf({
           content: 'test',
         },
         {
-          type: 'style',
+          type: 'text',
           style: {
             left: 200,
             top: 100,
