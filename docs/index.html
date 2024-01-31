@@ -3,7 +3,61 @@
 <head>
   <meta charset="utf-8">
   <title>Docs</title>
+  <style>
+    body, html {
+      margin: 0;
+    }
+  </style>
 </head>
 <body>
+
+<script type="module">
+  import { Pdf } from '../src'
+
+  const pdf = new Pdf({
+    // colorSpace: 'cmyk',
+    pages: [
+      {
+        width: 300,
+        height: 600,
+        children: [
+          {
+            type: 'image',
+            src: '/assets/test.jpg',
+            style: {
+              rotate: 60,
+              width: 50,
+              height: 50,
+            },
+          },
+          {
+            type: 'text',
+            content: 'test',
+            style: {
+              rotate: 90,
+              left: 100,
+              top: 100,
+              fontSize: 20,
+              color: '#FF00FF',
+            },
+          },
+        ],
+      },
+    ],
+  })
+
+  console.time('url')
+  pdf.toUrl().then(src => {
+    console.timeEnd('url')
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    iframe.style.border = 'none'
+    iframe.style.width = '100vw'
+    iframe.style.height = '100vh'
+    iframe.src = src
+    iframe.width = pdf.pages[0].width
+    iframe.height = pdf.pages[0].height + 60
+  })
+</script>
 </body>
 </html>

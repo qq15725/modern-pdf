@@ -1,28 +1,36 @@
 import { Resource } from './Resource'
 
-export interface FontProperties {
+export type Encoding =
+  | '/WinAnsiEncoding'
+  | '/Identity-H'
+  | string
+
+export interface FontOptions {
   baseFont?: string
-  encoding?: string
+  encoding?: Encoding
+  firstChar?: number
+  lastChar?: number
 }
 
-export class Font extends Resource {
+export abstract class Font extends Resource {
   baseFont?: string
-  encoding?: string
+  encoding?: Encoding
+  firstChar?: number
+  lastChar?: number
 
-  constructor(properties?: FontProperties) {
+  constructor(options?: FontOptions) {
     super()
-    properties && this.setProperties(properties)
+    options && this.setProperties(options)
   }
 
   override getDictionary(): Record<string, any> {
     return {
       ...super.getDictionary(),
       '/Type': '/Font',
-      '/Subtype': '/Type1',
       '/BaseFont': `/${ this.baseFont }`,
-      '/Encoding': `/${ this.encoding }`,
-      '/FirstChar': 32,
-      '/LastChar': 255,
+      '/Encoding': this.encoding,
+      '/FirstChar': this.firstChar,
+      '/LastChar': this.lastChar,
     }
   }
 }

@@ -1,4 +1,7 @@
+import { zlibSync } from 'fflate'
+import { colord } from 'colord'
 import { XObject } from './XObject'
+import type { Writer } from '../Writer'
 
 export type ColorSpace =
   | '/DeviceRGB'
@@ -13,74 +16,149 @@ export type ColorSpace =
   | '/Separation'
   | '/DeviceN'
 
-export interface XObjectImageProperties {
+export type Filter =
+  | '/FlateDecode'
+  | '/DCTDecode'
+  | '/JPXDecode'
+  | '/CCITTFaxDecode'
+  | '/RunLengthDecode'
+  | '/LZWDecode'
+
+export interface XObjectImageOptions {
   width?: number
   height?: number
-  data?: string
+  data?: Uint8Array
   bitsPerComponent?: number
   decodeParms?: Record<string, any>
-  sMask?: boolean
+  sMask?: XObjectImage
   transparency?: Array<number>
   colorSpace?: ColorSpace
+  filter?: Array<Filter>
 }
 
 export class XObjectImage extends XObject {
-  // TODO
-  static imageFileTypeHeaders = {
-    png: [[0x89, 0x50, 0x4E, 0x47]],
-    tiff: [
-      [0x4D, 0x4D, 0x00, 0x2A], // Motorola
-      [0x49, 0x49, 0x2A, 0x00], // Intel
-    ],
-    jpeg: [
-      [0xFF, 0xD8, 0xFF, 0xE0, undefined, undefined, 0x4A, 0x46, 0x49, 0x46, 0x00], // JFIF
-      [0xFF, 0xD8, 0xFF, 0xE1, undefined, undefined, 0x45, 0x78, 0x69, 0x66, 0x00, 0x00], // Exif
-      [0xFF, 0xD8, 0xFF, 0xDB], // JPEG RAW
-      [0xFF, 0xD8, 0xFF, 0xEE], // EXIF RAW
-    ],
-    jpeg2000: [[0x00, 0x00, 0x00, 0x0C, 0x6A, 0x50, 0x20, 0x20]],
-    gif87a: [[0x47, 0x49, 0x46, 0x38, 0x37, 0x61]],
-    gif89a: [[0x47, 0x49, 0x46, 0x38, 0x39, 0x61]],
-    webp: [[0x52, 0x49, 0x46, 0x46, undefined, undefined, undefined, undefined, 0x57, 0x45, 0x42, 0x50]],
-    bmp: [
-      [0x42, 0x4D], // BM - Windows 3.1x, 95, NT, ... etc.
-      [0x42, 0x41], // BA - OS/2 struct bitmap array
-      [0x43, 0x49], // CI - OS/2 struct color icon
-      [0x43, 0x50], // CP - OS/2 const color pointer
-      [0x49, 0x43], // IC - OS/2 struct icon
-      [0x50, 0x54], // PT - OS/2 pointer
-    ],
-  }
-
   width = 0
   height = 0
-  data = ''
+  data = new Uint8Array(0)
   bitsPerComponent = 8
   decodeParms?: Record<string, any>
-  sMask?: boolean
+  sMask?: XObjectImage
   transparency?: Array<number>
   colorSpace: ColorSpace = '/DeviceRGB'
+  filter?: Array<Filter>
 
-  static async load(src: string): Promise<XObjectImage> {
-    const bitmap = await fetch(src)
-      .then(rep => rep.blob())
-      .then(blob => createImageBitmap(blob))
+  protected _handledData = ''
+
+  static async load(bitmap: ImageBitmap, colorSpace: 'rgb' | 'cmyk'): Promise<XObjectImage> {
     const canvas = document.createElement('canvas')
-    canvas.height = bitmap.height
     canvas.width = bitmap.width
+    canvas.height = bitmap.height
     const ctx = canvas.getContext('2d')!
     ctx.drawImage(bitmap, 0, 0)
-    const jpeg = canvas.toDataURL('image/jpeg')
-    return new XObjectImage({
-      width: bitmap.width,
-      height: bitmap.height,
-      data: atob(decodeURIComponent(jpeg).split('base64,').pop()!),
-    })
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    switch (colorSpace) {
+      case 'cmyk': {
+        const aData = new Uint8Array(imageData.data.length / 4)
+        const data = new Uint8Array(imageData.data.length)
+        for (let i = 0, aI = 0; i < imageData.data.length; i += 4) {
+          const r = imageData.data[i]
+          const g = imageData.data[i + 1]
+          const b = imageData.data[i + 2]
+          const a = imageData.data[i + 3] / 255
+          const cmyk = colord({ r, g, b, a }).toCmyk()
+          data[i] = cmyk.c / 100 * 255
+          data[i + 1] = cmyk.m / 100 * 255
+          data[i + 2] = cmyk.y / 100 * 255
+          data[i + 3] = cmyk.k / 100 * 255
+          aData[aI++] = cmyk.a * 255
+        }
+        return new XObjectImage({
+          width: bitmap.width,
+          height: bitmap.height,
+          decodeParms: {
+            '/Colors': 4,
+            '/BitsPerComponent': 8,
+            '/Columns': bitmap.width,
+          },
+          bitsPerComponent: 8,
+          colorSpace: '/DeviceCMYK',
+          filter: ['/FlateDecode'],
+          sMask: new XObjectImage({
+            width: bitmap.width,
+            height: bitmap.height,
+            decodeParms: {
+              '/Predictor': 12,
+              '/Colors': 1,
+              '/BitsPerComponent': 8,
+              '/Columns': bitmap.width,
+            },
+            bitsPerComponent: 8,
+            colorSpace: '/DeviceGray',
+            filter: ['/FlateDecode'],
+            data: aData,
+          }),
+          data,
+        })
+      }
+      case 'rgb': {
+        const aData = new Uint8Array(imageData.data.length / 4)
+        const rgbData = new Uint8Array(imageData.data.length / 4 * 3)
+        for (let i = 0, rgbI = 0, aI = 0; i < imageData.data.length; i += 4) {
+          rgbData[rgbI++] = imageData.data[i]
+          rgbData[rgbI++] = imageData.data[i + 1]
+          rgbData[rgbI++] = imageData.data[i + 2]
+          aData[aI++] = imageData.data[i + 3]
+        }
+        return new XObjectImage({
+          width: bitmap.width,
+          height: bitmap.height,
+          decodeParms: {
+            '/Colors': 3,
+            '/BitsPerComponent': 8,
+            '/Columns': bitmap.width,
+          },
+          bitsPerComponent: 8,
+          colorSpace: '/DeviceRGB',
+          filter: ['/FlateDecode'],
+          sMask: new XObjectImage({
+            width: bitmap.width,
+            height: bitmap.height,
+            decodeParms: {
+              '/Predictor': 12,
+              '/Colors': 1,
+              '/BitsPerComponent': 8,
+              '/Columns': bitmap.width,
+            },
+            bitsPerComponent: 8,
+            colorSpace: '/DeviceGray',
+            filter: ['/FlateDecode'],
+            data: aData,
+          }),
+          data: rgbData,
+        })
+      }
+    }
   }
 
-  constructor(properties?: XObjectImageProperties) {
+  constructor(options?: XObjectImageOptions) {
     super()
-    properties && this.setProperties(properties)
+    options && this.setProperties(options)
+    this._handleData()
+  }
+
+  protected _handleData() {
+    let data = this.data
+    this.filter?.forEach(filter => {
+      switch (filter) {
+        case '/FlateDecode':
+          data = zlibSync(data)
+          break
+      }
+    })
+    this._handledData = ''
+    for (let i = 0; i < data.length; i++) {
+      this._handledData += String.fromCharCode(data[i])
+    }
   }
 
   override getDictionary(): Record<string, any> {
@@ -92,15 +170,20 @@ export class XObjectImage extends XObject {
       '/BitsPerComponent': this.bitsPerComponent,
       '/DecodeParms': this.decodeParms,
       '/Mask': this.transparency?.map(val => `${ val } ${ val }`),
-      '/SMask': this.sMask ? `${ this.id + 1 } 0 R` : undefined,
+      '/SMask': this.sMask,
       '/ColorSpace': this.colorSpace,
-      '/Decode': this.colorSpace === '/DeviceCMYK' ? '[1 0 1 0 1 0 1 0]' : undefined,
-      '/Filter': ['/DCTDecode'],
-      '/Length': this.getStream().length,
+      '/Decode': this.colorSpace === '/DeviceCMYK' ? '[0 1 0 1 0 1 0 1]' : undefined,
+      '/Filter': this.filter,
+      '/Length': this._handledData.length,
     }
   }
 
   override getStream(): string {
-    return this.data
+    return this._handledData
+  }
+
+  override writeTo(writer: Writer): void {
+    this.sMask?.writeTo(writer)
+    super.writeTo(writer)
   }
 }

@@ -48,12 +48,12 @@ export class Writer {
   }
 
   protected _normalizeDictionary(dictionary: Record<string, any>): string {
-    let text = `<<${ Writer.EOL }`
+    let text = '<< '
     Object.keys(dictionary).forEach(rawKey => {
       if (dictionary[rawKey] !== undefined) {
         const key = this._normalizeName(rawKey)
         const value = this._normalize(dictionary[rawKey])
-        text += `  ${ key } ${ value }${ Writer.EOL }`
+        text += `${ key } ${ value } `
       }
     })
     text += '>>'

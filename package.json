@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "packageManager": "pnpm@7.26.2",
-  "description": "Starter template for TypeScript library",
+  "description": "Generate PDF in a way that describes the DOM.",
   "author": "wxm",
   "license": "MIT",
   "homepage": "https://github.com/qq15725/modern-pdf",
@@ -15,9 +15,11 @@
     "url": "https://github.com/qq15725/modern-pdf/issues"
   },
   "keywords": [
-    "starter",
-    "template",
-    "typescript"
+    "pdf",
+    "pdf-encode",
+    "pdf-codec",
+    "generate-pdf",
+    "modern-pdf"
   ],
   "sideEffects": false,
   "exports": {
@@ -44,7 +46,7 @@
     "types"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "vite docs",
     "lint": "eslint src",
     "test": "vitest",
     "build": "vite build && tsc --project tsconfig.build.json",
@@ -63,6 +65,7 @@
     "vitest": "^1.1.1"
   },
   "dependencies": {
-    "colord": "^2.9.3"
+    "colord": "^2.9.3",
+    "modern-text": "^0.0.16"
   }
 }

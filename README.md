@@ -24,13 +24,32 @@
 import { Pdf } from 'modern-pdf'
 
 const pdf = new Pdf({
+  // colorSpace: 'cmyk',
   pages: [
     {
       width: 300,
       height: 600,
       children: [
-        { type: 'image', src: '/test.jpg', rotate: 60, width: 50, height: 50 },
-        { type: 'text', text: 'test', rotate: 90, left: 100, top: 100, fontSize: 20, color: '#FF00FF' },
+        {
+          type: 'image',
+          src: '/test.jpg',
+          style: {
+            rotate: 60,
+            width: 50,
+            height: 50,
+          },
+        },
+        {
+          type: 'text',
+          content: 'test',
+          style: {
+            rotate: 90,
+            left: 100,
+            top: 100,
+            fontSize: 20,
+            color: '#FF00FF',
+          },
+        },
       ],
     },
   ],

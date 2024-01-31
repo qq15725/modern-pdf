@@ -1,39 +1,52 @@
 import { Element } from './Element'
-import type { Resources, XObjectImage } from '../resources'
+import type { XObjectImage } from '../resources'
 import type { Writer } from '../Writer'
 
-export interface ImageProperties {
-  left?: number
-  top?: number
-  width?: number
-  height?: number
-  rotate?: number
+export interface ImaegStyle {
+  left: number
+  top: number
+  width: number
+  height: number
+  rotate: number
+}
+
+export interface ImageOptions {
   src?: string
+  style?: Partial<ImaegStyle>
 }
 
 export class Image extends Element {
-  left?: number
-  top?: number
-  width?: number
-  height?: number
-  rotate?: number
   src = ''
+  style: ImaegStyle
 
-  protected _resource?: XObjectImage
-
-  constructor(properties?: ImageProperties) {
+  constructor(options: ImageOptions = {}) {
     super()
-    properties && this.setProperties(properties)
+    const { src = '', style } = options
+    this.style = {
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0,
+      rotate: 0,
+      ...style,
+    }
+    this.src = src
   }
 
   override getSources(): Array<string> {
     return [this.src]
   }
 
-  override writeTo(writer: Writer, resources: Resources) {
-    super.writeTo(writer, resources)
+  override async preload(): Promise<void> {
+    await Promise.all(
+      this.getSources().map(url => this.pdf.asset.addImage(url)),
+    )
+  }
 
-    const resource = resources.get(this.src) as XObjectImage
+  override writeTo(writer: Writer) {
+    super.writeTo(writer)
+
+    const resource = this.pdf.asset.get(this.src) as XObjectImage
 
     if (!resource) return
 
@@ -43,31 +56,19 @@ export class Image extends Element {
       width = resource.width,
       height = resource.height,
       rotate = 0,
-    } = this
+    } = this.style
 
-    const bottom = this.page.height - (top + height)
-
-    const angle = -rotate * Math.PI / 180
-    const c = Math.cos(angle)
-    const s = Math.sin(angle)
-    const sx = c.toFixed(4)
-    const shy = s.toFixed(4)
-    const shx = -s.toFixed(4)
-    const sy = c.toFixed(4)
-    const tx = left.toFixed(4)
-    const ty = bottom.toFixed(4)
-
-    // Save graphics state
-    writer.write('q')
-    // Translate
-    writer.write([1, 0, 0, 1, tx, ty, 'cm'].join(' '))
-    // Rotate
-    writer.write([sx, shy, shx, sy, 0, 0, 'cm'].join(' '))
-    // Scale
-    writer.write([width, 0, 0, height, 0, 0, 'cm'].join(' '))
-    // Paint Image
-    writer.write(`/${ resource.resourceId } Do`)
-    // Restore graphics state
-    writer.write('Q')
+    writer.write('q') // save graphics state
+    this._writeTransform(writer, {
+      left,
+      top,
+      width,
+      height,
+      rotate,
+      scaleX: width,
+      scaleY: height,
+    })
+    writer.write(`/${ resource.resourceId } Do`) // paint Image
+    writer.write('Q') // restore graphics state
   }
 }

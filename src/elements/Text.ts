@@ -1,40 +1,53 @@
 import { colord, extend } from 'colord'
 import cmykPlugin from 'colord/plugins/cmyk'
+import { Text as BaseText } from 'modern-text'
+import { FontType0 } from '../resources'
 import { Element } from './Element'
-import type { AnyColor } from 'colord'
 import type { Writer } from '../Writer'
-import type { Resources } from '../resources'
+import type { TextStyle as BaseTextStyle, TextContent } from 'modern-text'
 
 extend([cmykPlugin])
 
-export interface TextProperties {
-  left?: number
-  top?: number
-  text?: string
-  fontSize?: number
-  fontWeight?: number | string
-  lineHeight?: number
-  letterSpacing?: number
-  wordSpacing?: number
-  rotate?: number
-  color?: AnyColor
+export interface TextStyle extends BaseTextStyle {
+  left: number
+  top: number
+  width: number
+  height: number
+  wordSpacing: number
+  rotate: number
+}
+
+export interface TextOptions {
+  content?: TextContent
+  style?: Partial<TextStyle>
 }
 
 export class Text extends Element {
-  left?: number
-  top?: number
-  text?: string
-  fontSize?: number
-  fontWeight?: number | string
-  lineHeight?: number
-  letterSpacing?: number
-  wordSpacing?: number
-  rotate?: number
-  color?: AnyColor
+  protected _text = new BaseText()
+  content: TextContent
+  style: TextStyle
 
-  constructor(properties?: TextProperties) {
+  constructor(options: TextOptions = {}) {
     super()
-    properties && this.setProperties(properties)
+    const { content = '', style } = options
+    this.content = content
+    this.style = {
+      left: 0,
+      top: 0,
+      wordSpacing: 0,
+      rotate: 0,
+      ...BaseText.defaultStyle,
+      height: 0,
+      width: 0,
+      ...style,
+    }
+  }
+
+  override getSources(): Array<string> {
+    const asset = this.pdf.asset
+    return [
+      asset.getFont(this.style.fontFamily || 'helvetica')?.source,
+    ].filter(Boolean) as any
   }
 
   /*
@@ -48,76 +61,115 @@ export class Text extends Element {
    *  T* (line three) Tj
    * ET
    */
-  override writeTo(writer: Writer, resources: Resources) {
-    super.writeTo(writer, resources)
+  override writeTo(writer: Writer) {
+    super.writeTo(writer)
+
+    this._text.content = this.content
+    this._text.style = this.style as any
+    const { paragraphs, contentBox } = this._text.measure()
 
     const {
       left = 0,
       top = 0,
-      fontSize = 14,
-      fontWeight = 400,
-      lineHeight = 1,
-      letterSpacing = 0,
+      width = contentBox.width,
+      height = contentBox.height,
       wordSpacing = 0,
       rotate = 0,
-      text = '',
-      color = '#000000',
-    } = this
+    } = this.style
 
-    const height = lineHeight * fontSize
-    const bottom = this.page.height - (top + height)
-
-    const angle = -rotate * Math.PI / 180
-    const c = Math.cos(angle)
-    const s = Math.sin(angle)
-    const sx = c.toFixed(4)
-    const shy = s.toFixed(4)
-    const shx = -s.toFixed(4)
-    const sy = c.toFixed(4)
-    const tx = left.toFixed(4)
-    const ty = bottom.toFixed(4)
-
-    let textColor
-    switch (this.pdf?.colorSpace) {
-      case 'cmyk': {
-        const cmyk = colord(color).toCmyk()
-        textColor = `${ cmyk.c / 100 } ${ cmyk.m / 100 } ${ cmyk.y / 100 } ${ cmyk.k / 100 } k`
-        break
-      }
-      case 'rgb':
-      default: {
-        const rgb = colord(color).toRgb()
-        textColor = `${ rgb.r / 255 } ${ rgb.g / 255 } ${ rgb.b / 255 } rg`
-        break
-      }
-    }
-
-    const font = resources.get('Helvetica')!
-    const fontFace = font.resourceId
-    let fontStyle = 'normal'
-    switch (fontWeight) {
-      case 400:
-      case 'normal':
-        fontStyle = 'normal'
-        break
-      case 700:
-      case 'bold':
-        fontStyle = 'bold'
-        break
-      default:
-        fontStyle = `${ fontWeight } ${ fontStyle }`
-    }
-
+    writer.write('q') // save graphics state
+    this._writeTransform(writer, {
+      left,
+      top,
+      width,
+      height,
+      rotate,
+    })
     writer.write('BT')
-    writer.write(`/${ fontFace } ${ fontStyle } ${ fontSize } Tf`) // font face, style, size
-    writer.write(`${ height } TL`) // line spacing
-    writer.write(`${ letterSpacing } Tc`) // char spacing
+    writer.write(`${ wordSpacing } Tw`) // word spacing
     writer.write(`${ 100 } Tz`) // horizontal scale
     writer.write(`${ 0 } Tr`) // rendering mode
-    writer.write(`${ wordSpacing } Tw`) // word spacing
-    writer.write(`${ sx } ${ shy } ${ shx } ${ sy } ${ tx } ${ ty } Tm`) // position
-    writer.write(textColor) // color
-    writer.write(`(${ text }) Tj`) // content
+    paragraphs.forEach(paragraph => {
+      paragraph.fragments.forEach(fragment => {
+        const {
+          content,
+          glyphBox,
+          baseline,
+        } = fragment
+
+        if (!content) return
+
+        const {
+          fontSize,
+          // fontWeight, // TODO
+          letterSpacing,
+          fontFamily,
+          fontStyle,
+          color,
+        } = fragment.style
+
+        const tx = glyphBox.left
+        const ty = height - baseline
+        const lineSpacing = glyphBox.height
+
+        let skewY = 0
+        if (fontStyle === 'italic') {
+          skewY = 0.25
+        }
+
+        let textColor
+        switch (this.pdf?.colorSpace) {
+          case 'cmyk': {
+            const cmyk = colord(color).toCmyk()
+            textColor = `${ cmyk.c / 100 } ${ cmyk.m / 100 } ${ cmyk.y / 100 } ${ cmyk.k / 100 } k`
+            break
+          }
+          case 'rgb':
+          default: {
+            const rgb = colord(color).toRgb()
+            textColor = `${ rgb.r / 255 } ${ rgb.g / 255 } ${ rgb.b / 255 } rg`
+            break
+          }
+        }
+
+        const asset = this.pdf.asset
+        let font
+        if (fontFamily) {
+          const fontFace = asset.getFont(fontFamily)
+          if (fontFace) {
+            font = asset.get(fontFace.source)
+          }
+        }
+        if (!font) {
+          font = asset.get('helvetica')!
+        }
+
+        let text
+        if (font instanceof FontType0) {
+          text = '<'
+          for (let i = 0, l = content.length; i < l; i++) {
+            const unicode = content.charCodeAt(i)
+            const glyphId = font.unicodeGlyphIdMap[unicode]
+            if (glyphId !== undefined) {
+              text += Number(glyphId)
+                .toString(16)
+                .padStart(4, '0')
+            }
+          }
+          text += '>'
+        } else {
+          text = `(${ content })`
+        }
+
+        writer.write(`/${ font.resourceId } ${ fontSize.toFixed(4) } Tf`) // font face, style, size
+        writer.write(`${ lineSpacing.toFixed(4) } TL`) // line spacing
+        writer.write(`${ letterSpacing.toFixed(4) } Tc`) // char spacing
+        writer.write(`${ [1, 0, skewY, 1, tx, ty].map(val => val.toFixed(4)).join(' ') } Tm`) // position
+        writer.write(textColor) // color
+        writer.write(`${ text } Tj`) // content
+      })
+    })
     writer.write('ET')
+    writer.write('Q') // restore graphics state
   }
 }

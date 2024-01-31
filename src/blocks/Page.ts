@@ -6,7 +6,7 @@ import type { Pages } from './Pages'
 import type { Element } from '../elements'
 import type { Writer } from '../Writer'
 
-export interface PageProperties {
+export interface PageOptions {
   rotate?: number
   left?: number
   top?: number
@@ -20,7 +20,6 @@ export interface PageProperties {
 }
 
 export class Page extends ObjectBlock {
-  parent?: Pages
   rotate = 0
   left = 0
   top = 0
@@ -33,15 +32,17 @@ export class Page extends ObjectBlock {
   userUnit?: number
   children: Array<Element> = []
 
+  _parent?: Pages
   _contents = new Contents()
   _resources = new Resources()
 
-  constructor(properties?: PageProperties) {
+  constructor(options?: PageOptions) {
     super()
-    properties && this.setProperties(properties)
+    options && this.setProperties(options)
   }
 
   override setPdf(pdf: Pdf): this {
+    this._parent = pdf._pages
     this._contents.setPdf(pdf)
     this._resources.setPdf(pdf)
     return super.setPdf(pdf)
@@ -49,24 +50,19 @@ export class Page extends ObjectBlock {
 
   appendChild(element: Element): Element {
     this.children.push(element.setPage(this))
-    element.getSources().forEach(src => this._resources.preload(src))
+    element.getSources().forEach(src => this._resources.sources.add(src))
+    element.preload()
     return element
   }
 
-  waitUntilLoad() {
-    return this._resources.waitUntilLoad()
-  }
-
   override writeTo(writer: Writer): void {
-    this.children.forEach(child => {
-      child.writeTo(this._contents.writer, this._resources)
-    })
+    this.children.forEach(child => child.writeTo(this._contents.writer))
     this._resources.writeTo(writer)
     this._contents.writeTo(writer)
     writer.writeObj(this, () => {
       writer.write({
         '/Type': '/Page',
-        '/Parent': this.parent,
+        '/Parent': this._parent,
         '/Resources': this._resources,
         '/Contents': this._contents,
         '/Rotate': this.rotate,
