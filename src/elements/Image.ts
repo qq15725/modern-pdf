@@ -1,5 +1,5 @@
 import { Element } from './Element'
-import type { XObjectImage } from '../resources'
+import type { Resource, XObjectImage } from '../resources'
 import type { Writer } from '../Writer'
 
 export interface ImaegStyle {
@@ -18,6 +18,7 @@ export interface ImageOptions {
 export class Image extends Element {
   src = ''
   style: ImaegStyle
+  protected _xObjectImage?: XObjectImage
 
   constructor(options: ImageOptions = {}) {
     super()
@@ -33,20 +34,16 @@ export class Image extends Element {
     this.src = src
   }
 
-  override getSources(): Array<string> {
-    return [this.src]
-  }
-
-  override async preload(): Promise<void> {
-    await Promise.all(
-      this.getSources().map(url => this.pdf.asset.addImage(url)),
-    )
+  override load(): Array<Promise<Resource>> {
+    return [
+      this.pdf.asset.addImage(this.src).then(v => this._xObjectImage = v),
+    ]
   }
 
   override writeTo(writer: Writer) {
     super.writeTo(writer)
 
-    const resource = this.pdf.asset.get(this.src) as XObjectImage
+    const resource = this._xObjectImage
 
     if (!resource) return
 

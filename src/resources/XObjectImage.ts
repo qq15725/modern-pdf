@@ -1,6 +1,6 @@
-import { zlibSync } from 'fflate'
 import { colord } from 'colord'
 import { XObject } from './XObject'
+import type { ObjectBlockOptions } from '../blocks'
 import type { Writer } from '../Writer'
 
 export type ColorSpace =
@@ -16,40 +16,26 @@ export type ColorSpace =
   | '/Separation'
   | '/DeviceN'
 
-export type Filter =
-  | '/FlateDecode'
-  | '/DCTDecode'
-  | '/JPXDecode'
-  | '/CCITTFaxDecode'
-  | '/RunLengthDecode'
-  | '/LZWDecode'
-
-export interface XObjectImageOptions {
+export interface XObjectImageOptions extends ObjectBlockOptions {
   width?: number
   height?: number
-  data?: Uint8Array
   bitsPerComponent?: number
   decodeParms?: Record<string, any>
   sMask?: XObjectImage
   transparency?: Array<number>
   colorSpace?: ColorSpace
-  filter?: Array<Filter>
 }
 
 export class XObjectImage extends XObject {
   width = 0
   height = 0
-  data = new Uint8Array(0)
   bitsPerComponent = 8
   decodeParms?: Record<string, any>
   sMask?: XObjectImage
   transparency?: Array<number>
   colorSpace: ColorSpace = '/DeviceRGB'
-  filter?: Array<Filter>
 
-  protected _handledData = ''
-
-  static async load(bitmap: ImageBitmap, colorSpace: 'rgb' | 'cmyk'): Promise<XObjectImage> {
+  static from(bitmap: ImageBitmap, colorSpace: 'rgb' | 'cmyk'): XObjectImage {
     const canvas = document.createElement('canvas')
     canvas.width = bitmap.width
     canvas.height = bitmap.height
@@ -143,22 +129,6 @@ export class XObjectImage extends XObject {
   constructor(options?: XObjectImageOptions) {
     super()
     options && this.setProperties(options)
-    this._handleData()
-  }
-
-  protected _handleData() {
-    let data = this.data
-    this.filter?.forEach(filter => {
-      switch (filter) {
-        case '/FlateDecode':
-          data = zlibSync(data)
-          break
-      }
-    })
-    this._handledData = ''
-    for (let i = 0; i < data.length; i++) {
-      this._handledData += String.fromCharCode(data[i])
-    }
   }
 
   override getDictionary(): Record<string, any> {
@@ -173,13 +143,7 @@ export class XObjectImage extends XObject {
       '/SMask': this.sMask,
       '/ColorSpace': this.colorSpace,
       '/Decode': this.colorSpace === '/DeviceCMYK' ? '[0 1 0 1 0 1 0 1]' : undefined,
-      '/Filter': this.filter,
-      '/Length': this._handledData.length,
     }
-  }
-
-  override getStream(): string {
-    return this._handledData
   }
 
   override writeTo(writer: Writer): void {

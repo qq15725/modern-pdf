@@ -1,24 +1,23 @@
-import { FontDescriptor, Stream, ToUnicode } from '../blocks'
+import { FontDescriptor, ObjectBlock, ToUnicode } from '../blocks'
 import { Ttf } from '../Ttf'
 import { Font } from './Font'
 import type { Writer } from '../Writer'
 import type { FontOptions } from './Font'
 
 export interface FontTrueTypeOptions extends FontOptions {
-  toUnicode?: Stream
+  toUnicode?: ObjectBlock
   fontDescriptor?: FontDescriptor
   widths?: Array<number>
 }
 
 export class FontTrueType extends Font {
-  toUnicode?: Stream
+  toUnicode?: ObjectBlock
   fontDescriptor?: FontDescriptor
   widths?: Array<number>
 
-  static async load(name: string, response: Response): Promise<FontTrueType> {
-    const data = await response.arrayBuffer()
-    const ttf = new Ttf(new DataView(data)).parse()
-    const fontFile2 = new Stream({ data, addLength1: true })
+  static from(name: string, fontData: ArrayBuffer): FontTrueType {
+    const ttf = new Ttf(new DataView(fontData)).parse()
+    const fontFile2 = new ObjectBlock({ data: new Uint8Array(ttf.encode()), addLength1: true })
     const toUnicode = new ToUnicode()
     const fontDescriptor = new FontDescriptor({
       descent: ttf.descent,

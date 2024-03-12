@@ -283,7 +283,8 @@ export class Ttf {
     const tables = new Map<string, DataView>()
 
     switch (signature) {
-      case '\x00\x01\x00\x00': {
+      case '\x00\x01\x00\x00':
+      case 'OTTO': {
         for (let len = data.getUint16(4, false), i = 0; i < len; i++) {
           const entryOffset = 12 + i * 16
           const tag = String.fromCharCode(...Array.from({ length: 4 }, (_, i) => data.getUint8(entryOffset + i)))
@@ -390,6 +391,65 @@ export class Ttf {
         }
       }),
       flags,
+      encode: () => {
+        if (signature !== 'wOFF') {
+          return this.data.buffer
+        }
+
+        const slice = [].slice
+
+        function checksum(data: Uint8Array) {
+          const newData = slice.call(data) as Array<number>
+          while (newData.length % 4) newData.push(0)
+          const tmp = new DataView(new ArrayBuffer(newData.length))
+          let sum = 0
+          for (let i = 0, len = newData.length / 4; i < len; i = i += 4) {
+            sum += tmp.getUint32(i * 4, false)
+          }
+          return sum & 0xFFFFFFFF
+        }
+
+        const numTables = tables.size
+        const headerByteLength = 12
+        const tableHeadeByteLength = 16
+        const tableHeaderByteLength = numTables * tableHeadeByteLength
+        const log2 = Math.log(2)
+        const searchRange = Math.floor(Math.log(numTables) / log2) * 16
+        const entrySelector = Math.floor(searchRange / log2)
+        const rangeShift = tableHeaderByteLength - searchRange
+        let tableTotalLength = 0
+        tables.forEach(table => tableTotalLength += Math.ceil(table.byteLength / 4) * 4)
+        const textEncoder = new TextEncoder()
+        const buffer = new ArrayBuffer(headerByteLength + tableHeaderByteLength + tableTotalLength)
+        const uint8Array = new Uint8Array(buffer)
+        const data = new DataView(buffer)
+        data.setUint32(0, 0x00010000, false)
+        data.setUint16(4, numTables, false)
+        data.setUint16(6, searchRange, false)
+        data.setUint16(8, entrySelector, false)
+        data.setUint16(10, rangeShift, false)
+        let offset = headerByteLength
+        let headOffset = 0
+        let dataOffset = headerByteLength + tableHeaderByteLength
+        tables.forEach((table, tag) => {
+          const tagArray = textEncoder.encode(tag)
+          tagArray.forEach((val, i) => data.setUint8(offset + i, val))
+          const tableUint8Array = new Uint8Array(table.buffer)
+          data.setUint32(offset + 4, checksum(tableUint8Array), false)
+          data.setUint32(offset + 8, dataOffset, false)
+          data.setUint32(offset + 12, table.byteLength, false)
+          offset += tableHeadeByteLength
+          if (tag === 'head') headOffset = dataOffset
+          uint8Array.set(tableUint8Array, dataOffset)
+          dataOffset += table.byteLength
+          while (dataOffset % 4) {
+            dataOffset++
+          }
+        })
+        data.setUint32(headOffset + 8, 0, false)
+        data.setUint32(headOffset + 8, 0xB1B0AFBA - checksum(uint8Array), false)
+        return buffer
+      },
     }
   }
 }

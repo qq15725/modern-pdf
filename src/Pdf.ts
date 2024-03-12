@@ -2,7 +2,7 @@ import { Catalog, Eof, Header, Info, Page, Pages, Trailer, Xref } from './blocks
 import { Writer } from './Writer'
 import { Image, Text } from './elements'
 import { Asset } from './Asset'
-import { FontType1 } from './resources'
+import { FontType0, FontType1 } from './resources'
 import type { Element, ImageOptions, TextOptions } from './elements'
 import type { PageOptions } from './blocks'
 
@@ -73,8 +73,8 @@ export class Pdf {
   producer = `@bige/pdf@^${ Pdf.version }`
 
   // Catalog
-  pageLayout: PageLayout = '/SinglePage'
-  pageMode: PageMode = '/UseNone'
+  pageLayout?: PageLayout
+  pageMode?: PageMode
 
   // blocks
   _eof = new Eof().setPdf(this)
@@ -132,7 +132,14 @@ export class Pdf {
   async generate(): Promise<string> {
     const writer = new Writer()
     this._header.writeTo(writer)
-    const resources = await this.asset.waitUntilLoad()
+    const resources = new Set((
+      await Promise.all(this.pages.map(page => page.load()))
+    ).flatMap(v => v))
+    resources.forEach(resource => {
+      if (resource instanceof FontType0) {
+        resource.updateFontData()
+      }
+    })
     this.pages.forEach(page => page.writeTo(writer))
     this._pages.writeTo(writer)
     resources.forEach(resource => resource.writeTo(writer))

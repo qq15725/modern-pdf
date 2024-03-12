@@ -1,31 +1,85 @@
+import { zlibSync } from 'fflate'
 import { Block } from './Block'
 import type { Writer } from '../Writer'
 
+export type Filter =
+  | '/FlateDecode'
+  | '/DCTDecode'
+  | '/JPXDecode'
+  | '/CCITTFaxDecode'
+  | '/RunLengthDecode'
+  | '/LZWDecode'
+
+export interface ObjectBlockOptions {
+  data?: Uint8Array
+  filter?: Array<Filter>
+  addLength1?: boolean
+}
+
 export class ObjectBlock extends Block {
   static autoIncrementId = 0
-
-  offset = 0
 
   readonly id = ++ObjectBlock.autoIncrementId
 
   get objId() { return `${ this.id } 0` }
   get objRefId() { return `${ this.objId } R` }
 
-  getDictionary(): Record<string, any> {
-    return {}
+  offset = 0
+
+  data?: string | Uint8Array
+  filter?: Array<Filter>
+  addLength1?: boolean
+  protected _stream?: string
+
+  constructor(options?: ObjectBlockOptions) {
+    super()
+    options && this.setProperties(options)
   }
 
-  getStream(): string {
-    return ''
+  protected _updateData(): void {
+    if (!this.data) return
+
+    let data: Uint8Array
+    if (typeof this.data === 'string') {
+      data = new TextEncoder().encode(this.data)
+    } else {
+      data = this.data
+    }
+
+    this.filter?.forEach(filter => {
+      switch (filter) {
+        case '/FlateDecode':
+          data = zlibSync(data)
+          break
+      }
+    })
+    this._stream = ''
+    for (let i = 0, len = data.length; i < len; i += 4096) {
+      this._stream += String.fromCharCode(...data.subarray(i, i + 4096))
+    }
+  }
+
+  update(): void {
+    this._updateData()
+  }
+
+  getDictionary(): Record<string, any> {
+    return {
+      '/Length': this._stream ? this._stream.length : undefined,
+      '/addLength1': this._stream && this.addLength1 ? this._stream.length : undefined,
+      '/Filter': this._stream ? this.filter : undefined,
+    }
+  }
+
+  getStream(): string | undefined {
+    return this._stream
   }
 
   override writeTo(writer: Writer): void {
-    const dictionary = this.getDictionary()
-    const stream = this.getStream()
-
+    this.update()
     writer.writeObj(this, () => {
-      writer.write(dictionary)
-      stream && writer.writeStream(() => writer.write(stream))
+      writer.write(this.getDictionary())
+      this.getStream() && writer.writeStream(() => writer.write(this.getStream()))
     })
   }
 }

@@ -1,12 +1,11 @@
 import { ObjectBlock } from './ObjectBlock'
 import type { Writer } from '../Writer'
-import type { Stream } from './Stream'
 
 export interface FontDescriptorOptions {
   descent?: number
   capHeight?: number
   stemV?: number
-  fontFile2?: Stream
+  fontFile2?: ObjectBlock
   flags?: number
   fontName?: string
   fontBBox?: Array<number>
@@ -18,7 +17,7 @@ export class FontDescriptor extends ObjectBlock {
   descent?: number
   capHeight?: number
   stemV?: number
-  fontFile2?: Stream
+  fontFile2?: ObjectBlock
   flags?: number
   fontName?: string
   fontBBox?: Array<number>

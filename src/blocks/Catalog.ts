@@ -8,6 +8,10 @@ export class Catalog extends ObjectBlock {
       '/Pages': this.pdf._pages,
       '/PageLayout': this.pdf.pageLayout,
       '/PageMode': this.pdf.pageMode,
+      '/MarkInfo': {
+        '/Type': '/MarkInfo',
+        '/Marked': 'true',
+      },
       // /PageLabels
       // /Names
       // /Dests

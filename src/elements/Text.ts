@@ -1,10 +1,11 @@
 import { colord, extend } from 'colord'
 import cmykPlugin from 'colord/plugins/cmyk'
 import { Text as BaseText } from 'modern-text'
-import { FontType0 } from '../resources'
+import { FontType0, FontType1 } from '../resources'
 import { Element } from './Element'
+import type { TextStyle as BaseTextStyle, Metrics, TextContent } from 'modern-text'
+import type { Font, Resource } from '../resources'
 import type { Writer } from '../Writer'
-import type { TextStyle as BaseTextStyle, TextContent } from 'modern-text'
 
 extend([cmykPlugin])
 
@@ -26,6 +27,8 @@ export class Text extends Element {
   protected _text = new BaseText()
   content: TextContent
   style: TextStyle
+  protected _textMetrics?: Metrics
+  protected _fontFamilys = new Map<string, Font>()
 
   constructor(options: TextOptions = {}) {
     super()
@@ -40,14 +43,37 @@ export class Text extends Element {
       height: 0,
       width: 0,
       ...style,
+      fontFamily: '',
     }
   }
 
-  override getSources(): Array<string> {
-    const asset = this.pdf.asset
-    return [
-      asset.getFont(this.style.fontFamily || 'helvetica')?.source,
-    ].filter(Boolean) as any
+  override load(): Array<Promise<Resource>> {
+    this._text.content = this.content
+    this._text.style = this.style as any
+    this._textMetrics = this._text.measure()
+    const promises: Array<Promise<Resource>> = []
+    this._textMetrics.paragraphs.forEach(paragraph => {
+      paragraph.fragments.forEach(fragment => {
+        const content = fragment.content
+        const fontFamily = fragment.style.fontFamily
+        if (fontFamily) {
+          promises.push(
+            this.pdf.asset
+              .loadFont(fontFamily)
+              .then(font => {
+                this._fontFamilys.set(fontFamily, font)
+                if (font instanceof FontType0) {
+                  for (const char of content) {
+                    font.subset.add(char)
+                  }
+                }
+                return font
+              }),
+          )
+        }
+      })
+    })
+    return promises
   }
 
   /*
@@ -64,8 +90,6 @@ export class Text extends Element {
   override writeTo(writer: Writer) {
     super.writeTo(writer)
 
-    this._text.content = this.content
-    this._text.style = this.style as any
     const { paragraphs, contentBox } = this._text.measure()
 
     const {
@@ -87,8 +111,8 @@ export class Text extends Element {
     })
     writer.write('BT')
     writer.write(`${ wordSpacing } Tw`) // word spacing
-    writer.write(`${ 100 } Tz`) // horizontal scale
-    writer.write(`${ 0 } Tr`) // rendering mode
+    // writer.write(`${ 100 } Tz`) // horizontal scale
+    // writer.write(`${ 0 } Tr`) // rendering mode
     paragraphs.forEach(paragraph => {
       paragraph.fragments.forEach(fragment => {
         const {
@@ -132,17 +156,10 @@ export class Text extends Element {
           }
         }
 
-        const asset = this.pdf.asset
-        let font
-        if (fontFamily) {
-          const fontFace = asset.getFont(fontFamily)
-          if (fontFace) {
-            font = asset.get(fontFace.source)
-          }
-        }
-        if (!font) {
-          font = asset.get('helvetica')!
-        }
+        const font = this._fontFamilys.get(fontFamily)
+          ?? FontType1.defaultFont
+
+        if (!font) return
 
         let text
         if (font instanceof FontType0) {

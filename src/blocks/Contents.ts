@@ -10,15 +10,9 @@ export class Contents extends ObjectBlock {
     this.writer.write('0 G')
   }
 
-  getDictionary(): Record<string, any> {
-    return {
-      ...super.getDictionary(),
-      '/Length': this.writer.length,
-      // '/Filter': '/FlateDecode',
-    }
-  }
-
-  getStream(): string {
-    return this.writer.data
+  override update() {
+    this.data = this.writer.data
+    this.filter = ['/FlateDecode']
+    super.update()
   }
 }

@@ -1,6 +1,7 @@
-import { Resources } from '../resources/Resources'
+import { Resources } from '../resources'
 import { Contents } from './Contents'
 import { ObjectBlock } from './ObjectBlock'
+import type { Resource } from '../resources'
 import type { Pdf } from '../Pdf'
 import type { Pages } from './Pages'
 import type { Element } from '../elements'
@@ -20,7 +21,7 @@ export interface PageOptions {
 }
 
 export class Page extends ObjectBlock {
-  rotate = 0
+  rotate?: number
   left = 0
   top = 0
   width = 0
@@ -50,9 +51,25 @@ export class Page extends ObjectBlock {
 
   appendChild(element: Element): Element {
     this.children.push(element.setPage(this))
-    element.getSources().forEach(src => this._resources.sources.add(src))
-    element.preload()
     return element
+  }
+
+  async load(): Promise<Array<Resource>> {
+    return (
+      await Promise.all(this.children.flatMap(element => {
+        return element.load().map(val => {
+          return val.catch(error => {
+            console.error('Failed to page.load, element: ', element, error)
+            return null
+          })
+        })
+      }))
+    )
+      .filter(source => Boolean(source))
+      .flatMap(source => {
+        this._resources.sources.add(source as any)
+        return source
+      }) as any
   }
 
   override writeTo(writer: Writer): void {
@@ -72,6 +89,7 @@ export class Page extends ObjectBlock {
         '/TrimBox': this.trimBox,
         '/ArtBox': this.artBox,
         '/UserUnit': this.userUnit && this.userUnit !== 1.0 ? this.userUnit : undefined,
+        '/StructParents': 0,
       })
     })
   }

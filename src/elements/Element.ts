@@ -1,3 +1,4 @@
+import type { Resource } from '../resources'
 import type { Page } from '../blocks'
 import type { Pdf } from '../Pdf'
 import type { Writer } from '../Writer'
@@ -24,12 +25,8 @@ export class Element {
     return this
   }
 
-  getSources(): Array<string> {
+  load(): Array<Promise<Resource>> {
     return []
-  }
-
-  async preload(): Promise<void> {
-    //
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

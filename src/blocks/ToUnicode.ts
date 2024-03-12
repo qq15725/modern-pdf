@@ -1,11 +1,11 @@
-import { Stream } from './Stream'
-import type { StreamOptions } from './Stream'
+import { ObjectBlock } from './ObjectBlock'
+import type { ObjectBlockOptions } from './ObjectBlock'
 
-export interface ToUnicodeOptions extends StreamOptions {
+export interface ToUnicodeOptions extends ObjectBlockOptions {
   cmap?: Record<number, number>
 }
 
-export class ToUnicode extends Stream {
+export class ToUnicode extends ObjectBlock {
   constructor(options: ToUnicodeOptions = {}) {
     super()
     const cmap = options.cmap ?? {}

@@ -20,7 +20,10 @@ export class Writer {
   }
 
   protected _normalizeNumber(value: number): string {
-    return `${ value }`
+    if (Math.abs(value) === ~~value) {
+      return value.toString()
+    }
+    return value.toFixed(4)
   }
 
   protected _normalizeBoolean(value: boolean): string {
@@ -48,16 +51,15 @@ export class Writer {
   }
 
   protected _normalizeDictionary(dictionary: Record<string, any>): string {
-    let text = '<< '
+    const items: Array<string> = []
     Object.keys(dictionary).forEach(rawKey => {
       if (dictionary[rawKey] !== undefined) {
         const key = this._normalizeName(rawKey)
         const value = this._normalize(dictionary[rawKey])
-        text += `${ key } ${ value } `
+        items.push(`${ key } ${ value }`)
       }
     })
-    text += '>>'
-    return text
+    return `<<${ items.join(Writer.EOL) }>>`
   }
 
   protected _normalizeArray(value: Array<any>): string {
