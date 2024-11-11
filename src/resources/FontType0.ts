@@ -1,6 +1,6 @@
 import type { Writer } from '../Writer'
 import type { FontOptions } from './Font'
-import { parse, Ttf } from 'modern-text'
+import { minify, parse, Ttf } from 'modern-text'
 import { FontDescriptor, ObjectBlock, ToUnicode } from '../blocks'
 import { Font } from './Font'
 import { FontCIDFontType2 } from './FontCIDFontType2'
@@ -53,8 +53,17 @@ export class FontType0 extends Font {
     const fontDescriptor = fontCIDFontType2.fontDescriptor
     if (!fontDescriptor)
       return
-
-    const sfnt = parse(new DataView(this.fontData))!.sfnt
+    let fontData
+    try {
+      let subset = ''
+      this.subset.forEach(val => subset += val)
+      fontData = minify(this.fontData, subset)
+    }
+    catch (err) {
+      console.error('Failed to minifyFont', err)
+      fontData = this.fontData
+    }
+    const sfnt = parse(new DataView(fontData))!.sfnt
     const version = sfnt.os2.version
     const sFamilyClass = sfnt.os2.sFamilyClass
     const unitsPerEm = sfnt.head.unitsPerEm
