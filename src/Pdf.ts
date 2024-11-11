@@ -69,8 +69,8 @@ export class Pdf {
   author?: string
   creationDate = new Date()
   modDate = new Date()
-  creator = `@bige/pdf@^${Pdf.version}`
-  producer = `@bige/pdf@^${Pdf.version}`
+  creator = `modern-pdf@^${Pdf.version}`
+  producer = `modern-pdf@^${Pdf.version}`
 
   // Catalog
   pageLayout?: PageLayout

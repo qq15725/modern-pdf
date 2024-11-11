@@ -1,7 +1,7 @@
 import type { Writer } from '../Writer'
 import type { FontOptions } from './Font'
+import { parse, Ttf } from 'modern-text'
 import { FontDescriptor, ObjectBlock, ToUnicode } from '../blocks'
-import { Ttf } from '../Ttf'
 import { Font } from './Font'
 import { FontCIDFontType2 } from './FontCIDFontType2'
 
@@ -53,31 +53,61 @@ export class FontType0 extends Font {
     const fontDescriptor = fontCIDFontType2.fontDescriptor
     if (!fontDescriptor)
       return
-    const ttf = new Ttf(new DataView(this.fontData)).parse()
-    const fontFile2 = new ObjectBlock({ data: new Uint8Array(ttf.encode()), addLength1: true })
+
+    const sfnt = parse(new DataView(this.fontData))!.sfnt
+    const version = sfnt.os2.version
+    const sFamilyClass = sfnt.os2.sFamilyClass
+    const unitsPerEm = sfnt.head.unitsPerEm
+    const italicAngle = sfnt.post.italicAngle
+    const scaleFactor = 1000.0 / unitsPerEm
+    const unicodeToGlyphIndexMap = Object.fromEntries(sfnt.cmap.unicodeToGlyphIndexMap.entries())
+    const descent = Math.round(sfnt.hhea.descent * scaleFactor)
+    const ascent = Math.round(sfnt.hhea.ascent * scaleFactor)
+    const xMin = Math.round(sfnt.head.xMin * scaleFactor)
+    const yMin = Math.round(sfnt.head.yMin * scaleFactor)
+    const xMax = Math.round(sfnt.head.xMax * scaleFactor)
+    const yMax = Math.round(sfnt.head.yMax * scaleFactor)
+    const widths = sfnt.hmtx.metrics.map(hMetric => Math.round(hMetric.advanceWidth * scaleFactor))
+    const capHeight = version > 1
+      ? sfnt.os2.sCapHeight
+      : ascent
+    const isSerif = [1, 2, 3, 4, 5, 7].includes(sFamilyClass)
+    const isScript = sFamilyClass === 10
+    let flags = 0
+    if (sfnt.post.isFixedPitch)
+      flags |= 1 << 0
+    if (isSerif)
+      flags |= 1 << 1
+    if (isScript)
+      flags |= 1 << 3
+    if (italicAngle !== 0)
+      flags |= 1 << 6
+    flags |= 1 << 5
+
+    const fontFile2 = new ObjectBlock({ data: new Uint8Array(Ttf.from(sfnt).buffer), addLength1: true })
     const toUnicode = new ToUnicode({
-      cmap: Object.entries(ttf.unicodeGlyphIdMap)
+      cmap: Object.entries(unicodeToGlyphIndexMap)
         .reduce((acc, [k, v]) => ({ ...acc, [v]: k }), {}),
     })
-    fontCIDFontType2.w = ttf.hMetrics.flatMap((hMetric, i) => {
-      return [i, [hMetric.advanceWidth]]
+    fontCIDFontType2.w = widths.flatMap((advanceWidth, i) => {
+      return [i, [advanceWidth]]
     })
-    fontDescriptor.descent = ttf.descent
-    fontDescriptor.capHeight = ttf.sCapHeight
+    fontDescriptor.descent = descent
+    fontDescriptor.capHeight = capHeight
     fontDescriptor.stemV = 0
     fontDescriptor.fontFile2 = fontFile2
-    fontDescriptor.flags = ttf.flags
+    fontDescriptor.flags = flags
     fontDescriptor.fontBBox = [
-      ttf.xMin,
-      ttf.yMin,
-      ttf.xMax,
-      ttf.yMax,
+      xMin,
+      yMin,
+      xMax,
+      yMax,
     ]
-    fontDescriptor.italicAngle = ttf.italicAngle
-    fontDescriptor.ascent = ttf.ascent
+    fontDescriptor.italicAngle = italicAngle
+    fontDescriptor.ascent = ascent
 
     this.toUnicode = toUnicode
-    this.unicodeGlyphIdMap = ttf.unicodeGlyphIdMap
+    this.unicodeGlyphIdMap = unicodeToGlyphIndexMap
   }
 
   override getDictionary(): Record<string, any> {

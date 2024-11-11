@@ -1,7 +1,7 @@
 import type { Writer } from '../Writer'
 import type { FontOptions } from './Font'
+import { parse, Ttf } from 'modern-text'
 import { FontDescriptor, ObjectBlock, ToUnicode } from '../blocks'
-import { Ttf } from '../Ttf'
 import { Font } from './Font'
 
 export interface FontTrueTypeOptions extends FontOptions {
@@ -16,31 +16,46 @@ export class FontTrueType extends Font {
   widths?: number[]
 
   static from(name: string, fontData: ArrayBuffer): FontTrueType {
-    const ttf = new Ttf(new DataView(fontData)).parse()
-    const fontFile2 = new ObjectBlock({ data: new Uint8Array(ttf.encode()), addLength1: true })
+    const sfnt = parse(new DataView(fontData))!.sfnt
+    const version = sfnt.os2.version
+    const unitsPerEm = sfnt.head.unitsPerEm
+    const italicAngle = sfnt.post.italicAngle
+    const scaleFactor = 1000.0 / unitsPerEm
+    const descent = Math.round(sfnt.hhea.descent * scaleFactor)
+    const ascent = Math.round(sfnt.hhea.ascent * scaleFactor)
+    const xMin = Math.round(sfnt.head.xMin * scaleFactor)
+    const yMin = Math.round(sfnt.head.yMin * scaleFactor)
+    const xMax = Math.round(sfnt.head.xMax * scaleFactor)
+    const yMax = Math.round(sfnt.head.yMax * scaleFactor)
+    const widths = sfnt.hmtx.metrics.map(hMetric => Math.round(hMetric.advanceWidth * scaleFactor))
+    const capHeight = version > 1
+      ? sfnt.os2.sCapHeight
+      : ascent
+
+    const fontFile2 = new ObjectBlock({ data: new Uint8Array(Ttf.from(sfnt).buffer), addLength1: true })
     const toUnicode = new ToUnicode()
     const fontDescriptor = new FontDescriptor({
-      descent: ttf.descent,
-      capHeight: ttf.sCapHeight,
+      descent,
+      capHeight,
       stemV: 0,
       fontFile2,
       flags: 96,
       fontBBox: [
-        ttf.xMin,
-        ttf.yMin,
-        ttf.xMax,
-        ttf.yMax,
+        xMin,
+        yMin,
+        xMax,
+        yMax,
       ],
       fontName: name,
-      italicAngle: ttf.italicAngle,
-      ascent: ttf.ascent,
+      italicAngle,
+      ascent,
     })
     return new FontTrueType({
       baseFont: name,
       encoding: '/WinAnsiEncoding',
       toUnicode,
       fontDescriptor,
-      widths: ttf.hMetrics.map(hMetric => hMetric.advanceWidth),
+      widths,
     })
   }
 

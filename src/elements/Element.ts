@@ -74,14 +74,10 @@ export class Element {
       const sx = Math.sin(_rotate + skewY)
       const cy = -Math.sin(_rotate - skewX) // cos, added PI/2
       const sy = Math.cos(_rotate - skewX) // sin, added PI/2
-      const a = cx
-      const b = cy
-      const c = sx
-      const d = sy
       const offsetX = transformOriginX * width
       const offsetY = transformOriginY * height
       writer.write(`${[1, 0, 0, 1, offsetX, offsetY].map(val => val.toFixed(4)).join(' ')} cm`)
-      writer.write(`${[a, b, c, d, tx, ty].map(val => val.toFixed(4)).join(' ')} cm`)
+      writer.write(`${[cx, cy, sx, sy, tx, ty].map(val => val.toFixed(4)).join(' ')} cm`)
       writer.write(`${[1, 0, 0, 1, -offsetX, -offsetY].map(val => val.toFixed(4)).join(' ')} cm`)
     }
     else {

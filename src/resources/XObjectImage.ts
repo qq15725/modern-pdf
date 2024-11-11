@@ -30,7 +30,7 @@ export class XObjectImage extends XObject {
   width = 0
   height = 0
   bitsPerComponent = 8
-  decodeParms?: Record<string, any>
+  // decodeParms?: Record<string, any>
   sMask?: XObjectImage
   transparency?: number[]
   colorSpace: ColorSpace = '/DeviceRGB'
@@ -61,23 +61,23 @@ export class XObjectImage extends XObject {
         return new XObjectImage({
           width: bitmap.width,
           height: bitmap.height,
-          decodeParms: {
-            '/Colors': 4,
-            '/BitsPerComponent': 8,
-            '/Columns': bitmap.width,
-          },
+          // decodeParms: {
+          //   '/Colors': 4,
+          //   '/BitsPerComponent': 8,
+          //   '/Columns': bitmap.width,
+          // },
           bitsPerComponent: 8,
           colorSpace: '/DeviceCMYK',
           filter: ['/FlateDecode'],
           sMask: new XObjectImage({
             width: bitmap.width,
             height: bitmap.height,
-            decodeParms: {
-              '/Predictor': 12,
-              '/Colors': 1,
-              '/BitsPerComponent': 8,
-              '/Columns': bitmap.width,
-            },
+            // decodeParms: {
+            //   '/Predictor': 12,
+            //   '/Colors': 1,
+            //   '/BitsPerComponent': 8,
+            //   '/Columns': bitmap.width,
+            // },
             bitsPerComponent: 8,
             colorSpace: '/DeviceGray',
             filter: ['/FlateDecode'],
@@ -98,23 +98,23 @@ export class XObjectImage extends XObject {
         return new XObjectImage({
           width: bitmap.width,
           height: bitmap.height,
-          decodeParms: {
-            '/Colors': 3,
-            '/BitsPerComponent': 8,
-            '/Columns': bitmap.width,
-          },
+          // decodeParms: {
+          //   '/Colors': 3,
+          //   '/BitsPerComponent': 8,
+          //   '/Columns': bitmap.width,
+          // },
           bitsPerComponent: 8,
           colorSpace: '/DeviceRGB',
           filter: ['/FlateDecode'],
           sMask: new XObjectImage({
             width: bitmap.width,
             height: bitmap.height,
-            decodeParms: {
-              '/Predictor': 12,
-              '/Colors': 1,
-              '/BitsPerComponent': 8,
-              '/Columns': bitmap.width,
-            },
+            // decodeParms: {
+            //   '/Predictor': 12,
+            //   '/Colors': 1,
+            //   '/BitsPerComponent': 8,
+            //   '/Columns': bitmap.width,
+            // },
             bitsPerComponent: 8,
             colorSpace: '/DeviceGray',
             filter: ['/FlateDecode'],
@@ -138,7 +138,7 @@ export class XObjectImage extends XObject {
       '/Width': this.width,
       '/Height': this.height,
       '/BitsPerComponent': this.bitsPerComponent,
-      '/DecodeParms': this.decodeParms,
+      // '/DecodeParms': this.decodeParms,
       '/Mask': this.transparency?.map(val => `${val} ${val}`),
       '/SMask': this.sMask,
       '/ColorSpace': this.colorSpace,

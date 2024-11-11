@@ -121,6 +121,7 @@ export class Text extends Element {
           return
 
         const baseline = fragment.characters[0].baseline
+        const inlineBox = fragment.inlineBox
         const glyphBox = BoundingBox.from(
           ...(fragment.characters
             .map(c => c.glyphBox)
@@ -134,10 +135,12 @@ export class Text extends Element {
           fontFamily,
           fontStyle,
           color,
+          textDecoration,
+          writingMode,
         } = fragment.computedStyle
 
         const tx = glyphBox.left
-        const ty = height - baseline
+        const ty = height - (inlineBox.top + baseline)
         const lineSpacing = glyphBox.height
 
         let skewY = 0
@@ -190,6 +193,27 @@ export class Text extends Element {
         writer.write(`${[1, 0, skewY, 1, tx, ty].map(val => val.toFixed(4)).join(' ')} Tm`) // position
         writer.write(textColor) // color
         writer.write(`${text} Tj`) // content
+
+        switch (writingMode) {
+          case 'horizontal-tb':
+            switch (textDecoration) {
+              case 'underline':
+                writer.write(textColor.toUpperCase()) // color
+                writer.write(`${(fontSize * 0.1).toFixed(4)} w`)
+                writer.write(`${[tx, height - (glyphBox.top + glyphBox.height)].map(val => val.toFixed(4)).join(' ')} m`)
+                writer.write(`${[tx + inlineBox.width + 1, height - (glyphBox.top + glyphBox.height)].map(val => val.toFixed(4)).join(' ')} l`)
+                writer.write('S')
+                break
+              case 'line-through':
+                writer.write(textColor.toUpperCase()) // color
+                writer.write(`${(fontSize * 0.1).toFixed(4)} w`)
+                writer.write(`${[tx, height / 2].map(val => val.toFixed(4)).join(' ')} m`)
+                writer.write(`${[tx + inlineBox.width + 1, height / 2].map(val => val.toFixed(4)).join(' ')} l`)
+                writer.write('S')
+                break
+            }
+            break
+        }
       })
     })
     writer.write('ET')

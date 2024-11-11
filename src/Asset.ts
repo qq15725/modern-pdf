@@ -49,34 +49,46 @@ export class Asset {
     return assetResource.promise as any
   }
 
-  addImage(url: string): Promise<XObjectImage> {
-    if (url.startsWith('data:')) {
-      return this._load(url, () => {
-        return new Promise((resolve) => {
-          const img = new Image()
-          img.src = url
-          img.onload = () => img.decode().finally(() => resolve(img))
+  async fetchImageBitmap(url: string, options?: ImageBitmapOptions): Promise<ImageBitmap> {
+    if (url.startsWith('http')) {
+      return await fetch(url)
+        .then(rep => rep.blob())
+        .then((blob) => {
+          if (blob.type === 'image/svg+xml') {
+            return blob.text().then((text) => {
+              const svgHead = text.match(/^<svg[^>]+>/)?.[0]
+              if (svgHead && (!/width=".*"/.test(svgHead) || !/height=".*"/.test(svgHead))) {
+                text = text.replace(
+                  svgHead,
+                  svgHead
+                    .replace(/((width)|(height))=".*?"/g, '')
+                    // eslint-disable-next-line regexp/no-super-linear-backtracking
+                    .replace(/(viewBox=".+? .+? (.+?) (.+?)")/, '$1 width="$2" height="$3"'),
+                )
+              }
+              return this.fetchImageBitmap(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(text)}`, options)
+            })
+          }
+          return createImageBitmap(blob, options)
         })
-          .then(img => createImageBitmap(img as any))
-          .then((bitmap) => {
-            const resource = XObjectImage.from(bitmap, this.pdf.colorSpace)
-            bitmap.close()
-            return resource
-          })
-      })
     }
     else {
-      return this._load(url, () => {
-        return fetch(url)
-          .then(rep => rep.blob())
-          .then(blob => createImageBitmap(blob))
-          .then((bitmap) => {
-            const resource = XObjectImage.from(bitmap, this.pdf.colorSpace)
-            bitmap.close()
-            return resource
-          })
-      })
+      return new Promise<HTMLImageElement>((resolve) => {
+        const img = new Image()
+        img.src = url
+        img.onload = () => img.decode().finally(() => resolve(img))
+      }).then(img => createImageBitmap(img, options))
     }
+  }
+
+  addImage(url: string): Promise<XObjectImage> {
+    return this._load(url, () => {
+      return this.fetchImageBitmap(url).then((bitmap) => {
+        const resource = XObjectImage.from(bitmap, this.pdf.colorSpace)
+        bitmap.close()
+        return resource
+      })
+    })
   }
 
   addFont(options: Omit<FontFace, 'key'>): Promise<Font> {
@@ -110,7 +122,7 @@ export class Asset {
     })
   }
 
-  loadFont(family: string): Promise<Resource> {
+  async loadFont(family: string): Promise<Resource> {
     const font = this.getFont(family)
     if (!font) {
       throw new Error(`Failed to loadFont: ${family}`)
@@ -119,7 +131,7 @@ export class Asset {
     if (!promise) {
       throw new Error(`Failed to loadFont: ${family}`)
     }
-    return promise
+    return await promise
   }
 
   getFont(family: string): FontFace | undefined {

@@ -69,7 +69,11 @@ export class ObjectBlock extends Block {
     return {
       '/Length': this._stream ? this._stream.length : undefined,
       '/addLength1': this._stream && this.addLength1 ? this._stream.length : undefined,
-      '/Filter': this._stream ? this.filter : undefined,
+      '/Filter': this._stream
+        ? this.filter?.length === 1
+          ? this.filter[0]
+          : this.filter
+        : undefined,
     }
   }
 
