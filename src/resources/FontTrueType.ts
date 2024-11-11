@@ -1,6 +1,6 @@
 import type { Writer } from '../Writer'
 import type { FontOptions } from './Font'
-import { parse, Ttf } from 'modern-text'
+import { parseFont, Ttf, Woff } from 'modern-text'
 import { FontDescriptor, ObjectBlock, ToUnicode } from '../blocks'
 import { Font } from './Font'
 
@@ -16,7 +16,11 @@ export class FontTrueType extends Font {
   widths?: number[]
 
   static from(name: string, fontData: ArrayBuffer): FontTrueType {
-    const sfnt = parse(new DataView(fontData))!.sfnt
+    const font = parseFont(new DataView(fontData))
+    if (!(font instanceof Ttf || font instanceof Woff)) {
+      throw new TypeError('Failed to parseFont')
+    }
+    const sfnt = font.sfnt
     const version = sfnt.os2.version
     const unitsPerEm = sfnt.head.unitsPerEm
     const italicAngle = sfnt.post.italicAngle

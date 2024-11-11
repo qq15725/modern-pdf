@@ -1,4 +1,4 @@
-import type { TextStyle as BaseTextStyle, MeasureResult, TextContent } from 'modern-text'
+import type { Font as BaseFont, TextStyle as BaseTextStyle, TextContent } from 'modern-text'
 import type { Font, Resource } from '../resources'
 import type { Writer } from '../Writer'
 import { colord, extend } from 'colord'
@@ -27,7 +27,6 @@ export class Text extends Element {
   protected _text = new BaseText()
   content: TextContent
   style: TextStyle
-  protected _measureResult?: MeasureResult
   protected _fontFamilys = new Map<string, Font>()
 
   constructor(options: TextOptions = {}) {
@@ -50,12 +49,12 @@ export class Text extends Element {
   override load(): Promise<Resource>[] {
     this._text.content = this.content
     this._text.style = this.style
-    this._measureResult = this._text.measure()
+    this._text.updateParagraphs()
     const promises: Promise<Resource>[] = []
-    this._measureResult.paragraphs.forEach((paragraph) => {
+    this._text.paragraphs.forEach((paragraph) => {
       paragraph.fragments.forEach((fragment) => {
         const content = fragment.content
-        const fontFamily = fragment.style.fontFamily
+        const fontFamily = fragment.computedStyle.fontFamily
         if (fontFamily) {
           promises.push(
             this.pdf.asset
@@ -90,6 +89,13 @@ export class Text extends Element {
   override writeTo(writer: Writer): void {
     super.writeTo(writer)
 
+    const textFonts: Record<string, BaseFont> = {}
+    this._fontFamilys.forEach((font, key) => {
+      if (font instanceof FontType0 && font.textFont) {
+        textFonts[key] = font.textFont
+      }
+    })
+    this._text.fonts = textFonts
     const { paragraphs, boundingBox } = this._text.measure()
 
     const {
