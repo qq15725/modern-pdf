@@ -1,6 +1,6 @@
-import { Font } from './Font'
 import type { Asset } from '../Asset'
 import type { FontOptions } from './Font'
+import { Font } from './Font'
 
 export interface FontType1Options extends FontOptions {
   //
@@ -26,7 +26,7 @@ export class FontType1 extends Font {
     ['symbol', 'normal'],
   ]
 
-  static loadStandardFonts(asset: Asset) {
+  static loadStandardFonts(asset: Asset): void {
     this.standardFonts.forEach(([family, style, encoding]) => {
       const resource = new FontType1({
         baseFont: family,

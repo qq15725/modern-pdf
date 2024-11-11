@@ -1,11 +1,11 @@
+import type { Element } from '../elements'
+import type { Pdf } from '../Pdf'
+import type { Resource } from '../resources'
+import type { Writer } from '../Writer'
+import type { Pages } from './Pages'
 import { Resources } from '../resources'
 import { Contents } from './Contents'
 import { ObjectBlock } from './ObjectBlock'
-import type { Resource } from '../resources'
-import type { Pdf } from '../Pdf'
-import type { Pages } from './Pages'
-import type { Element } from '../elements'
-import type { Writer } from '../Writer'
 
 export interface PageOptions {
   rotate?: number
@@ -13,10 +13,10 @@ export interface PageOptions {
   top?: number
   width?: number
   height?: number
-  cropBox?: Array<number>
-  bleedBox?: Array<number>
-  trimBox?: Array<number>
-  artBox?: Array<number>
+  cropBox?: number[]
+  bleedBox?: number[]
+  trimBox?: number[]
+  artBox?: number[]
   userUnit?: number
 }
 
@@ -26,12 +26,12 @@ export class Page extends ObjectBlock {
   top = 0
   width = 0
   height = 0
-  cropBox?: Array<number>
-  bleedBox?: Array<number>
-  trimBox?: Array<number>
-  artBox?: Array<number>
+  cropBox?: number[]
+  bleedBox?: number[]
+  trimBox?: number[]
+  artBox?: number[]
   userUnit?: number
-  children: Array<Element> = []
+  children: Element[] = []
 
   _parent?: Pages
   _contents = new Contents()
@@ -54,11 +54,11 @@ export class Page extends ObjectBlock {
     return element
   }
 
-  async load(): Promise<Array<Resource>> {
+  async load(): Promise<Resource[]> {
     return (
-      await Promise.all(this.children.flatMap(element => {
-        return element.load().map(val => {
-          return val.catch(error => {
+      await Promise.all(this.children.flatMap((element) => {
+        return element.load().map((val) => {
+          return val.catch((error) => {
             console.error('Failed to page.load, element: ', element, error)
             return null
           })
@@ -66,7 +66,7 @@ export class Page extends ObjectBlock {
       }))
     )
       .filter(source => Boolean(source))
-      .flatMap(source => {
+      .flatMap((source) => {
         this._resources.sources.add(source as any)
         return source
       }) as any

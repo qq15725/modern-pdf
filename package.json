@@ -25,8 +25,8 @@
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     }
   },
   "main": "dist/index.mjs",
@@ -49,23 +49,34 @@
     "dev": "vite docs",
     "lint": "eslint src",
     "test": "vitest",
-    "build": "vite build && tsc --project tsconfig.build.json",
+    "build": "vite build && unbuild",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
-    "release": "bumpp package.json --commit \"release: v%s\" --push --all --tag"
-  },
-  "devDependencies": {
-    "@qq15725/eslint-config": "^1.1.0",
-    "@types/node": "^20.10.6",
-    "bumpp": "^9.2.1",
-    "conventional-changelog-cli": "^4.1.0",
-    "eslint": "^8.56.0",
-    "typescript": "^4.9.5",
-    "vite": "^5.0.10",
-    "vitest": "^1.1.1"
+    "release": "bumpp package.json --commit \"release: v%s\" --push --all --tag",
+    "typecheck": "tsc --noEmit",
+    "prepare": "simple-git-hooks"
   },
   "dependencies": {
     "colord": "^2.9.3",
-    "fflate": "^0.8.1",
-    "modern-text": "^0.0.18"
+    "fflate": "^0.8.2",
+    "modern-text": "^0.3.5"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^3.8.0",
+    "@types/node": "^22.9.0",
+    "bumpp": "^9.8.1",
+    "conventional-changelog-cli": "^5.0.0",
+    "eslint": "^9.14.0",
+    "lint-staged": "^15.2.10",
+    "simple-git-hooks": "^2.11.1",
+    "typescript": "^5.6.3",
+    "unbuild": "^2.0.0",
+    "vite": "^5.4.10",
+    "vitest": "^2.1.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint src --fix"
   }
 }

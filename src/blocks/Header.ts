@@ -1,5 +1,5 @@
-import { Block } from './Block'
 import type { Writer } from '../Writer'
+import { Block } from './Block'
 
 export class Header extends Block {
   override writeTo(writer: Writer): void {

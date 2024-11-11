@@ -1,11 +1,11 @@
-import { colord, extend } from 'colord'
-import cmykPlugin from 'colord/plugins/cmyk'
-import { Text as BaseText } from 'modern-text'
-import { FontType0, FontType1 } from '../resources'
-import { Element } from './Element'
-import type { TextStyle as BaseTextStyle, Metrics, TextContent } from 'modern-text'
+import type { TextStyle as BaseTextStyle, MeasureResult, TextContent } from 'modern-text'
 import type { Font, Resource } from '../resources'
 import type { Writer } from '../Writer'
+import { colord, extend } from 'colord'
+import cmykPlugin from 'colord/plugins/cmyk'
+import { Text as BaseText, BoundingBox, defaultTextStyles } from 'modern-text'
+import { FontType0, FontType1 } from '../resources'
+import { Element } from './Element'
 
 extend([cmykPlugin])
 
@@ -27,7 +27,7 @@ export class Text extends Element {
   protected _text = new BaseText()
   content: TextContent
   style: TextStyle
-  protected _textMetrics?: Metrics
+  protected _measureResult?: MeasureResult
   protected _fontFamilys = new Map<string, Font>()
 
   constructor(options: TextOptions = {}) {
@@ -39,7 +39,7 @@ export class Text extends Element {
       top: 0,
       wordSpacing: 0,
       rotate: 0,
-      ...BaseText.defaultStyle,
+      ...defaultTextStyles,
       height: 0,
       width: 0,
       ...style,
@@ -47,20 +47,20 @@ export class Text extends Element {
     }
   }
 
-  override load(): Array<Promise<Resource>> {
+  override load(): Promise<Resource>[] {
     this._text.content = this.content
-    this._text.style = this.style as any
-    this._textMetrics = this._text.measure()
-    const promises: Array<Promise<Resource>> = []
-    this._textMetrics.paragraphs.forEach(paragraph => {
-      paragraph.fragments.forEach(fragment => {
+    this._text.style = this.style
+    this._measureResult = this._text.measure()
+    const promises: Promise<Resource>[] = []
+    this._measureResult.paragraphs.forEach((paragraph) => {
+      paragraph.fragments.forEach((fragment) => {
         const content = fragment.content
         const fontFamily = fragment.style.fontFamily
         if (fontFamily) {
           promises.push(
             this.pdf.asset
               .loadFont(fontFamily)
-              .then(font => {
+              .then((font) => {
                 this._fontFamilys.set(fontFamily, font)
                 if (font instanceof FontType0) {
                   for (const char of content) {
@@ -87,16 +87,16 @@ export class Text extends Element {
    *  T* (line three) Tj
    * ET
    */
-  override writeTo(writer: Writer) {
+  override writeTo(writer: Writer): void {
     super.writeTo(writer)
 
-    const { paragraphs, contentBox } = this._text.measure()
+    const { paragraphs, boundingBox } = this._text.measure()
 
     const {
       left = 0,
       top = 0,
-      width = contentBox.width,
-      height = contentBox.height,
+      width = boundingBox.width,
+      height = boundingBox.height,
       wordSpacing = 0,
       rotate = 0,
     } = this.style
@@ -110,18 +110,22 @@ export class Text extends Element {
       rotate,
     })
     writer.write('BT')
-    writer.write(`${ wordSpacing } Tw`) // word spacing
+    writer.write(`${wordSpacing} Tw`) // word spacing
     // writer.write(`${ 100 } Tz`) // horizontal scale
     // writer.write(`${ 0 } Tr`) // rendering mode
-    paragraphs.forEach(paragraph => {
-      paragraph.fragments.forEach(fragment => {
-        const {
-          content,
-          glyphBox,
-          baseline,
-        } = fragment
+    paragraphs.forEach((paragraph) => {
+      paragraph.fragments.forEach((fragment) => {
+        const { content } = fragment
 
-        if (!content) return
+        if (!content || !fragment.characters.length)
+          return
+
+        const baseline = fragment.characters[0].baseline
+        const glyphBox = BoundingBox.from(
+          ...(fragment.characters
+            .map(c => c.glyphBox)
+            .filter(Boolean) as BoundingBox[]),
+        )
 
         const {
           fontSize,
@@ -130,7 +134,7 @@ export class Text extends Element {
           fontFamily,
           fontStyle,
           color,
-        } = fragment.style
+        } = fragment.computedStyle
 
         const tx = glyphBox.left
         const ty = height - baseline
@@ -144,14 +148,14 @@ export class Text extends Element {
         let textColor
         switch (this.pdf?.colorSpace) {
           case 'cmyk': {
-            const cmyk = colord(color).toCmyk()
-            textColor = `${ cmyk.c / 100 } ${ cmyk.m / 100 } ${ cmyk.y / 100 } ${ cmyk.k / 100 } k`
+            const cmyk = colord(color as string).toCmyk()
+            textColor = `${cmyk.c / 100} ${cmyk.m / 100} ${cmyk.y / 100} ${cmyk.k / 100} k`
             break
           }
           case 'rgb':
           default: {
-            const rgb = colord(color).toRgb()
-            textColor = `${ rgb.r / 255 } ${ rgb.g / 255 } ${ rgb.b / 255 } rg`
+            const rgb = colord(color as string).toRgb()
+            textColor = `${rgb.r / 255} ${rgb.g / 255} ${rgb.b / 255} rg`
             break
           }
         }
@@ -159,7 +163,8 @@ export class Text extends Element {
         const font = this._fontFamilys.get(fontFamily)
           ?? FontType1.defaultFont
 
-        if (!font) return
+        if (!font)
+          return
 
         let text
         if (font instanceof FontType0) {
@@ -174,16 +179,17 @@ export class Text extends Element {
             }
           }
           text += '>'
-        } else {
-          text = `(${ content })`
+        }
+        else {
+          text = `(${content})`
         }
 
-        writer.write(`/${ font.resourceId } ${ fontSize.toFixed(4) } Tf`) // font face, style, size
-        writer.write(`${ lineSpacing.toFixed(4) } TL`) // line spacing
-        writer.write(`${ letterSpacing.toFixed(4) } Tc`) // char spacing
-        writer.write(`${ [1, 0, skewY, 1, tx, ty].map(val => val.toFixed(4)).join(' ') } Tm`) // position
+        writer.write(`/${font.resourceId} ${fontSize.toFixed(4)} Tf`) // font face, style, size
+        writer.write(`${lineSpacing.toFixed(4)} TL`) // line spacing
+        writer.write(`${letterSpacing.toFixed(4)} Tc`) // char spacing
+        writer.write(`${[1, 0, skewY, 1, tx, ty].map(val => val.toFixed(4)).join(' ')} Tm`) // position
         writer.write(textColor) // color
-        writer.write(`${ text } Tj`) // content
+        writer.write(`${text} Tj`) // content
       })
     })
     writer.write('ET')

@@ -1,5 +1,5 @@
-import { ObjectBlock } from './ObjectBlock'
 import type { Writer } from '../Writer'
+import { ObjectBlock } from './ObjectBlock'
 
 export interface FontDescriptorOptions {
   descent?: number
@@ -8,7 +8,7 @@ export interface FontDescriptorOptions {
   fontFile2?: ObjectBlock
   flags?: number
   fontName?: string
-  fontBBox?: Array<number>
+  fontBBox?: number[]
   italicAngle?: number
   ascent?: number
 }
@@ -20,7 +20,7 @@ export class FontDescriptor extends ObjectBlock {
   fontFile2?: ObjectBlock
   flags?: number
   fontName?: string
-  fontBBox?: Array<number>
+  fontBBox?: number[]
   italicAngle?: number
   ascent?: number
 
@@ -39,7 +39,7 @@ export class FontDescriptor extends ObjectBlock {
       '/FontFile2': this.fontFile2,
       '/Flags': this.flags,
       '/FontBBox': this.fontBBox,
-      '/FontName': `/${ this.fontName }`,
+      '/FontName': `/${this.fontName}`,
       '/ItalicAngle': this.italicAngle,
       '/Ascent': this.ascent,
     }

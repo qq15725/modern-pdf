@@ -6,7 +6,8 @@ export class Block {
 
   protected _pdf?: Pdf
   get pdf(): Pdf {
-    if (!this._pdf) throw new Error('This block is missing pdf')
+    if (!this._pdf)
+      throw new Error('This block is missing pdf')
     return this._pdf
   }
 

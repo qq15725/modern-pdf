@@ -1,17 +1,17 @@
-import { Font } from './Font'
-import type { Writer } from '../Writer'
 import type { FontDescriptor } from '../blocks'
+import type { Writer } from '../Writer'
 import type { FontOptions } from './Font'
+import { Font } from './Font'
 
 export interface FontCIDFontType2Options extends FontOptions {
   fontDescriptor?: FontDescriptor
-  w?: Array<any>
+  w?: any[]
   cIDSystemInfoOrdering?: string
 }
 
 export class FontCIDFontType2 extends Font {
   fontDescriptor?: FontDescriptor
-  w?: Array<any>
+  w?: any[]
   cIDSystemInfoOrdering?: string
 
   constructor(options?: FontCIDFontType2Options) {

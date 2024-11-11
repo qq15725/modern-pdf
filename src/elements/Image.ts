@@ -1,6 +1,6 @@
-import { Element } from './Element'
 import type { Resource, XObjectImage } from '../resources'
 import type { Writer } from '../Writer'
+import { Element } from './Element'
 
 export interface ImaegStyle {
   left: number
@@ -34,18 +34,19 @@ export class Image extends Element {
     this.src = src
   }
 
-  override load(): Array<Promise<Resource>> {
+  override load(): Promise<Resource>[] {
     return [
       this.pdf.asset.addImage(this.src).then(v => this._xObjectImage = v),
     ]
   }
 
-  override writeTo(writer: Writer) {
+  override writeTo(writer: Writer): void {
     super.writeTo(writer)
 
     const resource = this._xObjectImage
 
-    if (!resource) return
+    if (!resource)
+      return
 
     const {
       left = 0,
@@ -65,7 +66,7 @@ export class Image extends Element {
       scaleX: width,
       scaleY: height,
     })
-    writer.write(`/${ resource.resourceId } Do`) // paint Image
+    writer.write(`/${resource.resourceId} Do`) // paint Image
     writer.write('Q') // restore graphics state
   }
 }

@@ -1,5 +1,5 @@
-import { Block } from './Block'
 import type { Writer } from '../Writer'
+import { Block } from './Block'
 
 export class Trailer extends Block {
   override writeTo(writer: Writer): void {
@@ -9,7 +9,7 @@ export class Trailer extends Block {
       '/Size': writer.objects.length + 2,
       '/Root': this.pdf._catalog,
       '/Info': this.pdf._info,
-      '/ID': this.pdf.id ? [`<${ this.pdf.id }>`, `<${ this.pdf.id }>`] : undefined,
+      '/ID': this.pdf.id ? [`<${this.pdf.id}>`, `<${this.pdf.id}>`] : undefined,
     })
   }
 }

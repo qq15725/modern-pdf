@@ -7,12 +7,12 @@ export class Ttf {
     //
   }
 
-  protected _createReader(uint8Array: Uint8Array) {
+  protected _createReader(uint8Array: Uint8Array): any {
     const dataView = new DataView(uint8Array.buffer)
     let cursor = 0
 
-    const getCursor = () => cursor
-    const setCursor = (value: number) => cursor = value
+    const getCursor = (): number => cursor
+    const setCursor = (value: number): number => cursor = value
     const readBytes = (length: number): Uint8Array => uint8Array.subarray(cursor, cursor += length)
     const readString = (length: number): string => Array.from(readBytes(length)).map(val => String.fromCharCode(val)).join('')
     const readUInt8BE = (): number => uint8Array[cursor++]
@@ -42,14 +42,14 @@ export class Ttf {
     }
   }
 
-  protected _readCmap(uint8Array: Uint8Array, numGlyphs: number) {
+  protected _readCmap(uint8Array: Uint8Array, numGlyphs: number): any {
     const { getCursor, setCursor, readUInt8BE, readUInt16BE, readUInt24BE, readUInt32BE } = this._createReader(uint8Array)
 
     const cmapCursor = getCursor()
     readUInt16BE() // version
     const numberSubtables = readUInt16BE()
 
-    const tables = [...new Array(numberSubtables)]
+    const tables = [...Array.from({ length: numberSubtables })]
       .map(() => ({
         platformID: readUInt16BE(),
         encodingID: readUInt16BE(),
@@ -65,8 +65,9 @@ export class Ttf {
         if (table.format === 0) {
           table.length = readUInt16BE()
           table.language = readUInt16BE()
-          table.glyphIdArray = [...new Array(table.length - 6)].map(readUInt8BE)
-        } else if (table.format === 2) {
+          table.glyphIdArray = [...Array.from({ length: table.length - 6 })].map(readUInt8BE)
+        }
+        else if (table.format === 2) {
           table.length = readUInt16BE()
           table.language = readUInt16BE()
           const subHeadKeys = []
@@ -92,8 +93,9 @@ export class Ttf {
           table.subHeadKeys = subHeadKeys
           table.maxPos = maxPos
           table.subHeads = subHeads
-          table.glyphs = [...new Array(glyphCount)].map(readUInt16BE)
-        } else if (table.format === 4) {
+          table.glyphs = [...Array.from({ length: glyphCount })].map(readUInt16BE)
+        }
+        else if (table.format === 4) {
           table.length = readUInt16BE()
           table.language = readUInt16BE()
           table.segCountX2 = readUInt16BE()
@@ -101,23 +103,25 @@ export class Ttf {
           table.entrySelector = readUInt16BE()
           table.rangeShift = readUInt16BE()
           const segCount = table.segCountX2 / 2
-          table.endCode = [...new Array(segCount)].map(readUInt16BE)
+          table.endCode = [...Array.from({ length: segCount })].map(readUInt16BE)
           table.reservedPad = readUInt16BE()
-          table.startCode = [...new Array(segCount)].map(readUInt16BE)
-          table.idDelta = [...new Array(segCount)].map(readUInt16BE)
+          table.startCode = [...Array.from({ length: segCount })].map(readUInt16BE)
+          table.idDelta = [...Array.from({ length: segCount })].map(readUInt16BE)
           table.idRangeOffsetCursor = getCursor()
-          table.idRangeOffset = [...new Array(segCount)].map(readUInt16BE)
+          table.idRangeOffset = [...Array.from({ length: segCount })].map(readUInt16BE)
           const glyphCount = (table.length - (getCursor() - startOffset)) / 2
           table.glyphIdArrayCursor = getCursor()
-          table.glyphIdArray = [...new Array(glyphCount)].map(readUInt16BE)
-        } else if (table.format === 6) {
+          table.glyphIdArray = [...Array.from({ length: glyphCount })].map(readUInt16BE)
+        }
+        else if (table.format === 6) {
           table.length = readUInt16BE()
           table.language = readUInt16BE()
           table.firstCode = readUInt16BE()
           table.entryCount = readUInt16BE()
           table.glyphIdArrayCursor = getCursor()
-          table.glyphIdArray = [...new Array(table.entryCount)].map(readUInt16BE)
-        } else if (table.format === 12) {
+          table.glyphIdArray = [...Array.from({ length: table.entryCount })].map(readUInt16BE)
+        }
+        else if (table.format === 12) {
           table.reserved = readUInt16BE()
           table.length = readUInt32BE()
           table.language = readUInt32BE()
@@ -132,7 +136,8 @@ export class Ttf {
             groups.push(group)
           }
           table.groups = groups
-        } else if (table.format === 14) {
+        }
+        else if (table.format === 14) {
           table.length = readUInt32BE()
           const numVarSelectorRecords = readUInt32BE()
           const groups = []
@@ -211,7 +216,8 @@ export class Ttf {
           unicodeGlyphIdMap[start++] = startId++
         }
       }
-    } else if (format4) {
+    }
+    else if (format4) {
       const segCount = format4.segCountX2 / 2
       const graphIdArrayIndexOffset = (format4.glyphIdArrayCursor - format4.idRangeOffsetCursor) / 2
 
@@ -219,7 +225,8 @@ export class Ttf {
         for (let start = format4.startCode[i], end = format4.endCode[i]; start <= end; ++start) {
           if (format4.idRangeOffset[i] === 0) {
             unicodeGlyphIdMap[start] = (start + format4.idDelta[i]) % 0x10000
-          } else {
+          }
+          else {
             const index = i + format4.idRangeOffset[i] / 2
               + (start - format4.startCode[i])
               - graphIdArrayIndexOffset
@@ -227,7 +234,8 @@ export class Ttf {
             const graphId = format4.glyphIdArray[index]
             if (graphId !== 0) {
               unicodeGlyphIdMap[start] = (graphId + format4.idDelta[i]) % 0x10000
-            } else {
+            }
+            else {
               unicodeGlyphIdMap[start] = 0
             }
           }
@@ -235,7 +243,8 @@ export class Ttf {
       }
 
       delete unicodeGlyphIdMap[65535]
-    } else if (format2) {
+    }
+    else if (format2) {
       const subHeadKeys = format2.subHeadKeys
       const subHeads = format2.subHeads
       const glyphs = format2.glyphs
@@ -244,24 +253,28 @@ export class Ttf {
         if (subHeadKeys[i] === 0) {
           if (i >= format2.maxPos) {
             index = 0
-          } else if (i < subHeads[0].firstCode
+          }
+          else if (i < subHeads[0].firstCode
             || i >= subHeads[0].firstCode + subHeads[0].entryCount
             || subHeads[0].idRangeOffset + (i - subHeads[0].firstCode) >= glyphs.length) {
             index = 0
-            // eslint-disable-next-line no-cond-assign
-          } else if ((index = glyphs[subHeads[0].idRangeOffset + (i - subHeads[0].firstCode)]) !== 0) {
+          }
+          // eslint-disable-next-line no-cond-assign
+          else if ((index = glyphs[subHeads[0].idRangeOffset + (i - subHeads[0].firstCode)]) !== 0) {
             index = index + subHeads[0].idDelta
           }
           if (index !== 0 && index < numGlyphs) {
             unicodeGlyphIdMap[i] = index
           }
-        } else {
+        }
+        else {
           const k = subHeadKeys[i]
           for (let j = 0, entryCount = subHeads[k].entryCount; j < entryCount; j++) {
             if (subHeads[k].idRangeOffset + j >= glyphs.length) {
               index = 0
-              // eslint-disable-next-line no-cond-assign
-            } else if ((index = glyphs[subHeads[k].idRangeOffset + j]) !== 0) {
+            }
+            // eslint-disable-next-line no-cond-assign
+            else if ((index = glyphs[subHeads[k].idRangeOffset + j]) !== 0) {
               index = index + subHeads[k].idDelta
             }
 
@@ -277,7 +290,7 @@ export class Ttf {
     return unicodeGlyphIdMap
   }
 
-  parse() {
+  parse(): any {
     const data = this.data
     const signature = String.fromCharCode(...Array.from({ length: 4 }, (_, i) => data.getUint8(i)))
     const tables = new Map<string, DataView>()
@@ -305,7 +318,8 @@ export class Ttf {
           const end = offset + compLength
           if (compLength >= origLength) {
             tables.set(tag, new DataView(data.buffer.slice(offset, end)))
-          } else {
+          }
+          else {
             tables.set(tag, new DataView(unzlibSync(new Uint8Array(data.buffer.slice(offset, end))).buffer))
           }
         }
@@ -368,10 +382,14 @@ export class Ttf {
     const isSerif = [1, 2, 3, 4, 5, 7].includes(sFamilyClass)
     const isScript = sFamilyClass === 10
     let flags = 0
-    if (isFixedPitch) flags |= 1 << 0
-    if (isSerif) flags |= 1 << 1
-    if (isScript) flags |= 1 << 3
-    if (italicAngle !== 0) flags |= 1 << 6
+    if (isFixedPitch)
+      flags |= 1 << 0
+    if (isSerif)
+      flags |= 1 << 1
+    if (isScript)
+      flags |= 1 << 3
+    if (italicAngle !== 0)
+      flags |= 1 << 6
     flags |= 1 << 5
 
     return {
@@ -384,7 +402,7 @@ export class Ttf {
       sCapHeight,
       italicAngle,
       unicodeGlyphIdMap,
-      hMetrics: hMetrics.map(hMetric => {
+      hMetrics: hMetrics.map((hMetric) => {
         return {
           advanceWidth: Math.round(hMetric.advanceWidth * scaleFactor),
           leftSideBearing: Math.round(hMetric.leftSideBearing * scaleFactor),
@@ -398,8 +416,8 @@ export class Ttf {
 
         const slice = [].slice
 
-        function checksum(data: Uint8Array) {
-          const newData = slice.call(data) as Array<number>
+        function checksum(data: Uint8Array): number {
+          const newData = slice.call(data) as number[]
           while (newData.length % 4) newData.push(0)
           const tmp = new DataView(new ArrayBuffer(newData.length))
           let sum = 0
@@ -439,7 +457,8 @@ export class Ttf {
           data.setUint32(offset + 8, dataOffset, false)
           data.setUint32(offset + 12, table.byteLength, false)
           offset += tableHeadeByteLength
-          if (tag === 'head') headOffset = dataOffset
+          if (tag === 'head')
+            headOffset = dataOffset
           uint8Array.set(tableUint8Array, dataOffset)
           dataOffset += table.byteLength
           while (dataOffset % 4) {

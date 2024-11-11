@@ -1,19 +1,19 @@
+import type { Writer } from '../Writer'
+import type { FontOptions } from './Font'
 import { FontDescriptor, ObjectBlock, ToUnicode } from '../blocks'
 import { Ttf } from '../Ttf'
 import { Font } from './Font'
-import type { Writer } from '../Writer'
-import type { FontOptions } from './Font'
 
 export interface FontTrueTypeOptions extends FontOptions {
   toUnicode?: ObjectBlock
   fontDescriptor?: FontDescriptor
-  widths?: Array<number>
+  widths?: number[]
 }
 
 export class FontTrueType extends Font {
   toUnicode?: ObjectBlock
   fontDescriptor?: FontDescriptor
-  widths?: Array<number>
+  widths?: number[]
 
   static from(name: string, fontData: ArrayBuffer): FontTrueType {
     const ttf = new Ttf(new DataView(fontData)).parse()

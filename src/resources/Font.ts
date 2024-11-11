@@ -27,7 +27,7 @@ export abstract class Font extends Resource {
     return {
       ...super.getDictionary(),
       '/Type': '/Font',
-      '/BaseFont': `/${ this.baseFont }`,
+      '/BaseFont': `/${this.baseFont}`,
       '/Encoding': this.encoding,
       '/FirstChar': this.firstChar,
       '/LastChar': this.lastChar,

@@ -1,7 +1,7 @@
-import { colord } from 'colord'
-import { XObject } from './XObject'
 import type { ObjectBlockOptions } from '../blocks'
 import type { Writer } from '../Writer'
+import { colord } from 'colord'
+import { XObject } from './XObject'
 
 export type ColorSpace =
   | '/DeviceRGB'
@@ -22,7 +22,7 @@ export interface XObjectImageOptions extends ObjectBlockOptions {
   bitsPerComponent?: number
   decodeParms?: Record<string, any>
   sMask?: XObjectImage
-  transparency?: Array<number>
+  transparency?: number[]
   colorSpace?: ColorSpace
 }
 
@@ -32,7 +32,7 @@ export class XObjectImage extends XObject {
   bitsPerComponent = 8
   decodeParms?: Record<string, any>
   sMask?: XObjectImage
-  transparency?: Array<number>
+  transparency?: number[]
   colorSpace: ColorSpace = '/DeviceRGB'
 
   static from(bitmap: ImageBitmap, colorSpace: 'rgb' | 'cmyk'): XObjectImage {
@@ -139,7 +139,7 @@ export class XObjectImage extends XObject {
       '/Height': this.height,
       '/BitsPerComponent': this.bitsPerComponent,
       '/DecodeParms': this.decodeParms,
-      '/Mask': this.transparency?.map(val => `${ val } ${ val }`),
+      '/Mask': this.transparency?.map(val => `${val} ${val}`),
       '/SMask': this.sMask,
       '/ColorSpace': this.colorSpace,
       '/Decode': this.colorSpace === '/DeviceCMYK' ? '[0 1 0 1 0 1 0 1]' : undefined,

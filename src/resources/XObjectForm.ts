@@ -5,7 +5,7 @@ export class XObjectForm extends XObject {
   y = 0
   width = 0
   height = 0
-  matrix: Array<number> = []
+  matrix: number[] = []
 
   getDictionary(): Record<string, any> {
     return {

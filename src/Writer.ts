@@ -3,20 +3,20 @@ import { ObjectBlock } from './blocks/ObjectBlock'
 export class Writer {
   static EOL = '\n'
 
-  get objects() { return this._objects }
+  protected _objects: ObjectBlock[] = []
+  get objects(): ObjectBlock[] { return this._objects }
 
-  protected _objects: Array<ObjectBlock> = []
   protected _data = ''
+  get data(): string { return this._data }
 
-  get data() { return this._data }
-  get length() { return this._data.length }
+  get length(): number { return this._data.length }
 
   protected _normalizeName(value: string): string {
-    return value[0] === '/' ? value : `/${ value.replace(/^\S/, s => s.toUpperCase()) }`
+    return value[0] === '/' ? value : `/${value.replace(/^\S/, s => s.toUpperCase())}`
   }
 
   protected _normalizeString(value: string): string {
-    return value[0] === '(' || value[0] === '/' || value[0] === '<' ? value : `(${ value })`
+    return value[0] === '(' || value[0] === '/' || value[0] === '<' ? value : `(${value})`
   }
 
   protected _normalizeNumber(value: number): string {
@@ -32,7 +32,7 @@ export class Writer {
 
   protected _normalizeDate(value: Date): string {
     const offset = value.getTimezoneOffset()
-    return `(${ [
+    return `(${[
       'D:',
       value.getFullYear(),
       String(value.getMonth() + 1).padStart(2, '0'),
@@ -47,23 +47,23 @@ export class Writer {
         String(Math.abs(offset % 60)).padStart(2, '0'),
         '\'',
       ].join(''),
-    ].join('') })`
+    ].join('')})`
   }
 
   protected _normalizeDictionary(dictionary: Record<string, any>): string {
-    const items: Array<string> = []
-    Object.keys(dictionary).forEach(rawKey => {
+    const items: string[] = []
+    Object.keys(dictionary).forEach((rawKey) => {
       if (dictionary[rawKey] !== undefined) {
         const key = this._normalizeName(rawKey)
         const value = this._normalize(dictionary[rawKey])
-        items.push(`${ key } ${ value }`)
+        items.push(`${key} ${value}`)
       }
     })
-    return `<<${ items.join(Writer.EOL) }>>`
+    return `<<${items.join(Writer.EOL)}>>`
   }
 
-  protected _normalizeArray(value: Array<any>): string {
-    return `[${ value.map(val => this._normalize(val)).join(' ') }]`
+  protected _normalizeArray(value: any[]): string {
+    return `[${value.map(val => this._normalize(val)).join(' ')}]`
   }
 
   protected _normalize(value: any): string {
@@ -77,11 +77,14 @@ export class Writer {
       case 'object':
         if (Array.isArray(value)) {
           return this._normalizeArray(value)
-        } else if (value instanceof ObjectBlock) {
+        }
+        else if (value instanceof ObjectBlock) {
           return value.objRefId
-        } else if (value instanceof Date) {
+        }
+        else if (value instanceof Date) {
           return this._normalizeDate(value)
-        } else if (value) {
+        }
+        else if (value) {
           return this._normalizeDictionary(value)
         }
         break
@@ -93,7 +96,7 @@ export class Writer {
     if (typeof value !== 'string') {
       value = this._normalize(value)
     }
-    this._data += `${ value }${ Writer.EOL }`
+    this._data += `${value}${Writer.EOL}`
   }
 
   writeStream(cb?: () => void): void {
@@ -105,7 +108,7 @@ export class Writer {
   writeObj(object: ObjectBlock, cb?: () => void): void {
     this._objects.push(object)
     object.offset = this.length
-    this.write(`${ object.objId } obj`)
+    this.write(`${object.objId} obj`)
     cb?.()
     this.write('endobj')
   }

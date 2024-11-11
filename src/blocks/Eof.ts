@@ -1,5 +1,5 @@
-import { Block } from './Block'
 import type { Writer } from '../Writer'
+import { Block } from './Block'
 
 export class Eof extends Block {
   writeTo(writer: Writer): void {

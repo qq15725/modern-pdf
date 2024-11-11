@@ -1,26 +1,26 @@
+import type { Writer } from '../Writer'
+import type { FontOptions } from './Font'
 import { FontDescriptor, ObjectBlock, ToUnicode } from '../blocks'
 import { Ttf } from '../Ttf'
 import { Font } from './Font'
 import { FontCIDFontType2 } from './FontCIDFontType2'
-import type { Writer } from '../Writer'
-import type { FontOptions } from './Font'
 
 export interface FontType0Options extends FontOptions {
   fontData?: ArrayBuffer
   toUnicode?: ObjectBlock
-  descendantFonts?: Array<Font>
+  descendantFonts?: Font[]
   unicodeGlyphIdMap?: Record<number, number>
 }
 
 export class FontType0 extends Font {
   fontData?: ArrayBuffer
   toUnicode?: ObjectBlock
-  descendantFonts?: Array<Font>
+  descendantFonts?: Font[]
   unicodeGlyphIdMap: Record<number, number> = {}
   subset = new Set<string>()
 
   static from(name: string, fontData: ArrayBuffer): FontType0 {
-    name = name.replace(/,|\s/ig, '')
+    name = name.replace(/,|\s/g, '')
 
     return new FontType0({
       fontData,
@@ -44,12 +44,15 @@ export class FontType0 extends Font {
     options && this.setProperties(options)
   }
 
-  updateFontData() {
-    if (!this.fontData) return
+  updateFontData(): void {
+    if (!this.fontData)
+      return
     const fontCIDFontType2 = this.descendantFonts?.[0] as FontCIDFontType2
-    if (!fontCIDFontType2) return
+    if (!fontCIDFontType2)
+      return
     const fontDescriptor = fontCIDFontType2.fontDescriptor
-    if (!fontDescriptor) return
+    if (!fontDescriptor)
+      return
     const ttf = new Ttf(new DataView(this.fontData)).parse()
     const fontFile2 = new ObjectBlock({ data: new Uint8Array(ttf.encode()), addLength1: true })
     const toUnicode = new ToUnicode({

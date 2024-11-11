@@ -1,6 +1,6 @@
+import type { Writer } from '../Writer'
 import { zlibSync } from 'fflate'
 import { Block } from './Block'
-import type { Writer } from '../Writer'
 
 export type Filter =
   | '/FlateDecode'
@@ -12,7 +12,7 @@ export type Filter =
 
 export interface ObjectBlockOptions {
   data?: Uint8Array
-  filter?: Array<Filter>
+  filter?: Filter[]
   addLength1?: boolean
 }
 
@@ -21,13 +21,13 @@ export class ObjectBlock extends Block {
 
   readonly id = ++ObjectBlock.autoIncrementId
 
-  get objId() { return `${ this.id } 0` }
-  get objRefId() { return `${ this.objId } R` }
+  get objId(): string { return `${this.id} 0` }
+  get objRefId(): string { return `${this.objId} R` }
 
   offset = 0
 
   data?: string | Uint8Array
-  filter?: Array<Filter>
+  filter?: Filter[]
   addLength1?: boolean
   protected _stream?: string
 
@@ -37,16 +37,18 @@ export class ObjectBlock extends Block {
   }
 
   protected _updateData(): void {
-    if (!this.data) return
+    if (!this.data)
+      return
 
     let data: Uint8Array
     if (typeof this.data === 'string') {
       data = new TextEncoder().encode(this.data)
-    } else {
+    }
+    else {
       data = this.data
     }
 
-    this.filter?.forEach(filter => {
+    this.filter?.forEach((filter) => {
       switch (filter) {
         case '/FlateDecode':
           data = zlibSync(data)

@@ -1,10 +1,10 @@
-import { Catalog, Eof, Header, Info, Page, Pages, Trailer, Xref } from './blocks'
-import { Writer } from './Writer'
-import { Image, Text } from './elements'
-import { Asset } from './Asset'
-import { FontType0, FontType1 } from './resources'
-import type { Element, ImageOptions, TextOptions } from './elements'
 import type { PageOptions } from './blocks'
+import type { Element, ImageOptions, TextOptions } from './elements'
+import { Asset } from './Asset'
+import { Catalog, Eof, Header, Info, Page, Pages, Trailer, Xref } from './blocks'
+import { Image, Text } from './elements'
+import { FontType0, FontType1 } from './resources'
+import { Writer } from './Writer'
 
 export type PageLayout =
   | '/SinglePage'
@@ -23,10 +23,10 @@ export type PageMode =
   | '/UseAttachments'
 
 export type PageOptionsWithChildren = PageOptions & {
-  children?: Array<
+  children?: (
     | ({ type: 'image' } & ImageOptions)
     | ({ type: 'text' } & TextOptions)
-  >
+  )[]
 }
 
 export interface PdfOptions {
@@ -45,14 +45,14 @@ export interface PdfOptions {
   creator?: string
   producer?: string
   // pages
-  pages?: Array<PageOptionsWithChildren>
+  pages?: PageOptionsWithChildren[]
 }
 
 export class Pdf {
   static version = import.meta.env.version
 
   asset = new Asset(this)
-  pages: Array<Page> = []
+  pages: Page[] = []
   currentPage = 0
   get page(): Page { return this.pages[this.currentPage] }
 
@@ -69,8 +69,8 @@ export class Pdf {
   author?: string
   creationDate = new Date()
   modDate = new Date()
-  creator = `@bige/pdf@^${ Pdf.version }`
-  producer = `@bige/pdf@^${ Pdf.version }`
+  creator = `@bige/pdf@^${Pdf.version}`
+  producer = `@bige/pdf@^${Pdf.version}`
 
   // Catalog
   pageLayout?: PageLayout
@@ -135,7 +135,7 @@ export class Pdf {
     const resources = new Set((
       await Promise.all(this.pages.map(page => page.load()))
     ).flatMap(v => v))
-    resources.forEach(resource => {
+    resources.forEach((resource) => {
       if (resource instanceof FontType0) {
         resource.updateFontData()
       }

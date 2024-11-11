@@ -10,7 +10,7 @@ export class Contents extends ObjectBlock {
     this.writer.write('0 G')
   }
 
-  override update() {
+  override update(): void {
     this.data = this.writer.data
     this.filter = ['/FlateDecode']
     super.update()

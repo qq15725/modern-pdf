@@ -1,13 +1,13 @@
-import { ObjectBlock } from '../blocks/ObjectBlock'
-import { XObjectImage } from './XObjectImage'
-import { Font } from './Font'
-import type { Resource } from './Resource'
 import type { Writer } from '../Writer'
+import type { Resource } from './Resource'
+import { ObjectBlock } from '../blocks/ObjectBlock'
+import { Font } from './Font'
+import { XObjectImage } from './XObjectImage'
 
 export class Resources extends ObjectBlock {
   sources = new Set<Resource>()
 
-  protected arrayToDictionary(objects: Array<Resource>) {
+  protected arrayToDictionary(objects: Resource[]): Record<string, any> {
     return objects.reduce(
       (dictionary, object) => ({ ...dictionary, [object.resourceId]: object }),
       {},
@@ -15,15 +15,16 @@ export class Resources extends ObjectBlock {
   }
 
   override writeTo(writer: Writer): void {
-    const fonts: Array<Resource> = []
-    const shadingPatterns: Array<Resource> = []
-    const tilingPatterns: Array<Resource> = []
-    const extGStates: Array<Resource> = []
-    const xObjects: Array<Resource> = []
-    this.sources.forEach(resource => {
+    const fonts: Resource[] = []
+    const shadingPatterns: Resource[] = []
+    const tilingPatterns: Resource[] = []
+    const extGStates: Resource[] = []
+    const xObjects: Resource[] = []
+    this.sources.forEach((resource) => {
       if (resource instanceof XObjectImage) {
         xObjects.push(resource)
-      } else if (resource instanceof Font) {
+      }
+      else if (resource instanceof Font) {
         fonts.push(resource)
       }
     })

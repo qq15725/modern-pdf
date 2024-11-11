@@ -1,6 +1,6 @@
-import type { Resource } from '../resources'
 import type { Page } from '../blocks'
 import type { Pdf } from '../Pdf'
+import type { Resource } from '../resources'
 import type { Writer } from '../Writer'
 
 export const PI = Math.PI
@@ -8,14 +8,16 @@ export const DEG_TO_RAD = PI / 180
 
 export class Element {
   protected _pdf?: Pdf
-  get pdf() {
-    if (!this._pdf) throw new Error('This element is missing pdf')
+  get pdf(): Pdf {
+    if (!this._pdf)
+      throw new Error('This element is missing pdf')
     return this._pdf
   }
 
   protected _page?: Page
-  get page() {
-    if (!this._page) throw new Error('This element is missing page')
+  get page(): Page {
+    if (!this._page)
+      throw new Error('This element is missing page')
     return this._page
   }
 
@@ -25,12 +27,11 @@ export class Element {
     return this
   }
 
-  load(): Array<Promise<Resource>> {
+  load(): Promise<Resource>[] {
     return []
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  writeTo(writer: Writer): void {
+  writeTo(_writer: Writer): void {
     //
   }
 
@@ -79,15 +80,16 @@ export class Element {
       const d = sy
       const offsetX = transformOriginX * width
       const offsetY = transformOriginY * height
-      writer.write(`${ [1, 0, 0, 1, offsetX, offsetY].map(val => val.toFixed(4)).join(' ') } cm`)
-      writer.write(`${ [a, b, c, d, tx, ty].map(val => val.toFixed(4)).join(' ') } cm`)
-      writer.write(`${ [1, 0, 0, 1, -offsetX, -offsetY].map(val => val.toFixed(4)).join(' ') } cm`)
-    } else {
-      writer.write(`${ [1, 0, 0, 1, tx, ty].map(val => val.toFixed(4)).join(' ') } cm`)
+      writer.write(`${[1, 0, 0, 1, offsetX, offsetY].map(val => val.toFixed(4)).join(' ')} cm`)
+      writer.write(`${[a, b, c, d, tx, ty].map(val => val.toFixed(4)).join(' ')} cm`)
+      writer.write(`${[1, 0, 0, 1, -offsetX, -offsetY].map(val => val.toFixed(4)).join(' ')} cm`)
+    }
+    else {
+      writer.write(`${[1, 0, 0, 1, tx, ty].map(val => val.toFixed(4)).join(' ')} cm`)
     }
 
     if (scaleX !== 1 && scaleY !== 1) {
-      writer.write(`${ [scaleX, 0, 0, scaleY, 0, 0].map(val => val.toFixed(4)).join(' ') } cm`)
+      writer.write(`${[scaleX, 0, 0, scaleY, 0, 0].map(val => val.toFixed(4)).join(' ')} cm`)
     }
   }
 }
