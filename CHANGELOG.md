@@ -1,3 +1,12 @@
+## [0.1.1](https://github.com/qq15725/modern-pdf/compare/v0.1.0...v0.1.1) (2024-11-12)
+
+
+### Bug Fixes
+
+* font ([51a5d4e](https://github.com/qq15725/modern-pdf/commit/51a5d4e38fc056d4a0691d45c182ca57d332f59c))
+
+
+
 # [0.1.0](https://github.com/qq15725/modern-pdf/compare/v0.0.2...v0.1.0) (2024-11-11)
 
 
