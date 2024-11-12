@@ -1,3 +1,12 @@
+## [0.1.4](https://github.com/qq15725/modern-pdf/compare/v0.1.3...v0.1.4) (2024-11-12)
+
+
+### Bug Fixes
+
+* load svg ([8a4021a](https://github.com/qq15725/modern-pdf/commit/8a4021a03ec0a12e1013074ce61461c6d4a9a030))
+
+
+
 ## [0.1.3](https://github.com/qq15725/modern-pdf/compare/v0.1.2...v0.1.3) (2024-11-12)
 
 
