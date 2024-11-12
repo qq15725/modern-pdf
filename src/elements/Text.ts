@@ -3,7 +3,7 @@ import type { Font, Resource } from '../resources'
 import type { Writer } from '../Writer'
 import { colord, extend } from 'colord'
 import cmykPlugin from 'colord/plugins/cmyk'
-import { Text as BaseText, BoundingBox, defaultTextStyles } from 'modern-text'
+import { Text as BaseText, BoundingBox } from 'modern-text'
 import { FontType0, FontType1 } from '../resources'
 import { Element } from './Element'
 
@@ -26,7 +26,7 @@ export interface TextOptions {
 export class Text extends Element {
   protected _text = new BaseText()
   content: TextContent
-  style: TextStyle
+  style: Partial<TextStyle>
   protected _familyToFont = new Map<string, Font>()
 
   constructor(options: TextOptions = {}) {
@@ -38,17 +38,15 @@ export class Text extends Element {
       top: 0,
       wordSpacing: 0,
       rotate: 0,
-      ...defaultTextStyles,
       height: 0,
       width: 0,
       ...style,
-      fontFamily: '',
     }
   }
 
   override load(): Promise<Resource>[] {
     this._text.content = this.content
-    this._text.style = this.style
+    this._text.style = { ...this.style }
     this._text.updateParagraphs()
     const list: Promise<Resource>[] = []
     this._text.paragraphs.forEach((paragraph) => {
@@ -88,8 +86,6 @@ export class Text extends Element {
   override writeTo(writer: Writer): void {
     super.writeTo(writer)
 
-    this._text.content = this.content
-    this._text.style = this.style
     const { paragraphs, boundingBox } = this._text.measure()
 
     const {

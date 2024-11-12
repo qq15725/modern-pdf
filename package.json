@@ -57,7 +57,7 @@
   "dependencies": {
     "colord": "^2.9.3",
     "fflate": "^0.8.2",
-    "modern-text": "^0.3.8"
+    "modern-text": "^0.3.9"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.8.0",

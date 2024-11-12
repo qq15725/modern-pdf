@@ -16,7 +16,7 @@
   import { Pdf } from '../src'
 
   async function main() {
-    fonts.fallbackFont = await fonts.load({ family: '_fallback', url: '/fallback.woff' })
+    fonts.fallbackFont = await fonts.load({ family: 'test', src: '/test.woff' })
 
     const pdf = new Pdf({
       // colorSpace: 'cmyk',
@@ -32,7 +32,7 @@
             },
             {
               type: 'text',
-              style: { rotate: 40, left: 100, top: 100, fontSize: 20, color: '#FF00FF' },
+              style: { fontFamily: 'test', rotate: 40, left: 100, top: 100, fontSize: 20, color: '#FF00FF' },
               content: 'test',
             },
             {
