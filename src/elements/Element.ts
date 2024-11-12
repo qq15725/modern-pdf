@@ -76,16 +76,16 @@ export class Element {
       const sy = Math.cos(_rotate - skewX) // sin, added PI/2
       const offsetX = transformOriginX * width
       const offsetY = transformOriginY * height
-      writer.write(`${[1, 0, 0, 1, offsetX, offsetY].map(val => val.toFixed(4)).join(' ')} cm`)
-      writer.write(`${[cx, cy, sx, sy, tx, ty].map(val => val.toFixed(4)).join(' ')} cm`)
-      writer.write(`${[1, 0, 0, 1, -offsetX, -offsetY].map(val => val.toFixed(4)).join(' ')} cm`)
+      writer.write(`${[1, 0, 0, 1, offsetX, offsetY].map(val => Number(val).toFixed(4)).join(' ')} cm`)
+      writer.write(`${[cx, cy, sx, sy, tx, ty].map(val => Number(val).toFixed(4)).join(' ')} cm`)
+      writer.write(`${[1, 0, 0, 1, -offsetX, -offsetY].map(val => Number(val).toFixed(4)).join(' ')} cm`)
     }
     else {
-      writer.write(`${[1, 0, 0, 1, tx, ty].map(val => val.toFixed(4)).join(' ')} cm`)
+      writer.write(`${[1, 0, 0, 1, tx, ty].map(val => Number(val).toFixed(4)).join(' ')} cm`)
     }
 
     if (scaleX !== 1 && scaleY !== 1) {
-      writer.write(`${[scaleX, 0, 0, scaleY, 0, 0].map(val => val.toFixed(4)).join(' ')} cm`)
+      writer.write(`${[scaleX, 0, 0, scaleY, 0, 0].map(val => Number(val).toFixed(4)).join(' ')} cm`)
     }
   }
 }

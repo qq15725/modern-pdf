@@ -40,22 +40,27 @@ export class Asset {
   }
 
   async fetchImageBitmap(url: string, options?: ImageBitmapOptions): Promise<ImageBitmap> {
+    function fixSvg(text: string): string {
+      const svgHead = text.match(/^<svg[^>]+>/)?.[0]
+      if (svgHead && (!/width=".*"/.test(svgHead) || !/height=".*"/.test(svgHead))) {
+        text = text.replace(
+          svgHead,
+          svgHead
+            .replace(/((width)|(height))=".*?"/g, '')
+            // eslint-disable-next-line regexp/no-super-linear-backtracking
+            .replace(/(viewBox=".+? .+? (.+?) (.+?)")/, '$1 width="$2" height="$3"'),
+        )
+      }
+      return text
+    }
+
     if (url.startsWith('http')) {
       return await fetch(url)
         .then(rep => rep.blob())
         .then((blob) => {
           if (blob.type === 'image/svg+xml') {
             return blob.text().then((text) => {
-              const svgHead = text.match(/^<svg[^>]+>/)?.[0]
-              if (svgHead && (!/width=".*"/.test(svgHead) || !/height=".*"/.test(svgHead))) {
-                text = text.replace(
-                  svgHead,
-                  svgHead
-                    .replace(/((width)|(height))=".*?"/g, '')
-                    // eslint-disable-next-line regexp/no-super-linear-backtracking
-                    .replace(/(viewBox=".+? .+? (.+?) (.+?)")/, '$1 width="$2" height="$3"'),
-                )
-              }
+              text = fixSvg(text)
               return this.fetchImageBitmap(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(text)}`, options)
             })
           }
@@ -63,6 +68,16 @@ export class Asset {
         })
     }
     else {
+      if (url.startsWith('data:image/svg+xml;charset=utf-8,')) {
+        url = url.substring('data:image/svg+xml;charset=utf-8,'.length)
+        url = decodeURIComponent(url)
+        url = fixSvg(url)
+      }
+      else if (url.startsWith('data:image/svg+xml;base64,')) {
+        url = url.substring('data:image/svg+xml;base64,'.length)
+        url = atob(url)
+        url = fixSvg(url)
+      }
       return new Promise<HTMLImageElement>((resolve) => {
         const img = new Image()
         img.src = url
