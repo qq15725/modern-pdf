@@ -1,10 +1,13 @@
 import { basename, resolve } from 'node:path'
 import { defineConfig } from 'vite'
-import { browser, name } from './package.json'
+import { browser, name, version } from './package.json'
 
 const resolvePath = (str: string) => resolve(__dirname, str)
 
 export default defineConfig({
+  define: {
+    'import.meta.env.version': JSON.stringify(version),
+  },
   build: {
     lib: {
       formats: ['umd'],

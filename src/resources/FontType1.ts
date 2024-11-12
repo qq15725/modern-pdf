@@ -27,7 +27,7 @@ export class FontType1 extends Font {
   ]
 
   static loadStandardFonts(asset: Asset): void {
-    this.standardFonts.forEach(([family, style, encoding]) => {
+    this.standardFonts.forEach(([family, _style, encoding]) => {
       const resource = new FontType1({
         baseFont: family,
         encoding,
@@ -35,11 +35,7 @@ export class FontType1 extends Font {
       if (!this.defaultFont) {
         this.defaultFont = resource
       }
-      asset.addFont({
-        family,
-        style,
-        resource,
-      })
+      asset.addFont(family, resource)
     })
   }
 

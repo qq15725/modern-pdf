@@ -1,4 +1,4 @@
-import type { Font as BaseFont, TextStyle as BaseTextStyle, TextContent } from 'modern-text'
+import type { TextStyle as BaseTextStyle, TextContent } from 'modern-text'
 import type { Font, Resource } from '../resources'
 import type { Writer } from '../Writer'
 import { colord, extend } from 'colord'
@@ -27,7 +27,7 @@ export class Text extends Element {
   protected _text = new BaseText()
   content: TextContent
   style: TextStyle
-  protected _fontFamilys = new Map<string, Font>()
+  protected _familyToFont = new Map<string, Font>()
 
   constructor(options: TextOptions = {}) {
     super()
@@ -50,17 +50,16 @@ export class Text extends Element {
     this._text.content = this.content
     this._text.style = this.style
     this._text.updateParagraphs()
-    const promises: Promise<Resource>[] = []
+    const list: Promise<Resource>[] = []
     this._text.paragraphs.forEach((paragraph) => {
       paragraph.fragments.forEach((fragment) => {
         const content = fragment.content
         const fontFamily = fragment.computedStyle.fontFamily
         if (fontFamily) {
-          promises.push(
-            this.pdf.asset
-              .loadFont(fontFamily)
+          list.push(
+            this.pdf.asset.getFont(fontFamily)
               .then((font) => {
-                this._fontFamilys.set(fontFamily, font)
+                this._familyToFont.set(fontFamily, font)
                 if (font instanceof FontType0) {
                   for (const char of content) {
                     font.subset.add(char)
@@ -72,7 +71,7 @@ export class Text extends Element {
         }
       })
     })
-    return promises
+    return list
   }
 
   /*
@@ -89,13 +88,8 @@ export class Text extends Element {
   override writeTo(writer: Writer): void {
     super.writeTo(writer)
 
-    const textFonts: Record<string, BaseFont> = {}
-    this._fontFamilys.forEach((font, key) => {
-      if (font instanceof FontType0 && font.textFont) {
-        textFonts[key] = font.textFont
-      }
-    })
-    this._text.fonts = textFonts
+    this._text.content = this.content
+    this._text.style = this.style
     const { paragraphs, boundingBox } = this._text.measure()
 
     const {
@@ -169,7 +163,7 @@ export class Text extends Element {
           }
         }
 
-        const font = this._fontFamilys.get(fontFamily)
+        const font = this._familyToFont.get(fontFamily)
           ?? FontType1.defaultFont
 
         if (!font)
