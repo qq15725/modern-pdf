@@ -1,3 +1,9 @@
+## <small>0.1.6 (2024-11-14)</small>
+
+* fix: text fonts ([7a4a9c7](https://github.com/qq15725/modern-pdf/commit/7a4a9c7))
+
+
+
 ## <small>0.1.5 (2024-11-14)</small>
 
 * fix: lock ([a8b5108](https://github.com/qq15725/modern-pdf/commit/a8b5108))
