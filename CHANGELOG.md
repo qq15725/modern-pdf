@@ -1,3 +1,10 @@
+## <small>0.1.5 (2024-11-14)</small>
+
+* fix: lock ([a8b5108](https://github.com/qq15725/modern-pdf/commit/a8b5108))
+* feat: add fonts option ([3252c6f](https://github.com/qq15725/modern-pdf/commit/3252c6f))
+
+
+
 ## [0.1.4](https://github.com/qq15725/modern-pdf/compare/v0.1.3...v0.1.4) (2024-11-12)
 
 
