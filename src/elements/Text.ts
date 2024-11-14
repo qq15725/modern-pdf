@@ -1,10 +1,11 @@
-import type { TextStyle as BaseTextStyle, TextContent } from 'modern-text'
+import type { TextContent as BaseTextContent, TextStyle as BaseTextStyle } from 'modern-text'
 import type { Font, Resource } from '../resources'
 import type { Writer } from '../Writer'
 import { colord, extend } from 'colord'
 import cmykPlugin from 'colord/plugins/cmyk'
-import { Text as BaseText, BoundingBox } from 'modern-text'
-import { FontType0, FontType1 } from '../resources'
+import { BoundingBox } from 'modern-path2d'
+import { Text as BaseText } from 'modern-text'
+import { FontType0 } from '../resources'
 import { Element } from './Element'
 
 extend([cmykPlugin])
@@ -19,13 +20,13 @@ export interface TextStyle extends BaseTextStyle {
 }
 
 export interface TextOptions {
-  content?: TextContent
+  content?: BaseTextContent
   style?: Partial<TextStyle>
 }
 
 export class Text extends Element {
   protected _text = new BaseText()
-  content: TextContent
+  content: BaseTextContent
   style: Partial<TextStyle>
   protected _familyToFont = new Map<string, Font>()
 
@@ -160,7 +161,7 @@ export class Text extends Element {
         }
 
         const font = this._familyToFont.get(fontFamily)
-          ?? FontType1.defaultFont
+          ?? this.pdf.asset.fallbackFont
 
         if (!font)
           return

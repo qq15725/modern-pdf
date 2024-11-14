@@ -1,3 +1,4 @@
+import type { Fonts } from 'modern-font'
 import type { PageOptions } from './blocks'
 import type { Element, ImageOptions, TextOptions } from './elements'
 import { Asset } from './Asset'
@@ -30,6 +31,7 @@ export type PageOptionsWithChildren = PageOptions & {
 }
 
 export interface PdfOptions {
+  fonts?: Fonts
   id?: string
   colorSpace?: 'rgb' | 'cmyk'
   // Catalog
@@ -51,6 +53,7 @@ export interface PdfOptions {
 export class Pdf {
   static version = import.meta.env.version
 
+  fonts?: Fonts
   asset = new Asset(this)
   pages: Page[] = []
   currentPage = 0
@@ -88,11 +91,11 @@ export class Pdf {
   constructor(options?: PdfOptions) {
     FontType1.loadStandardFonts(this.asset)
     if (options) {
-      const { pages, ...pdfOptions } = options
+      const { pages, ..._restOptions } = options
       pages?.forEach(props => this.addPage(props))
-      for (const key in pdfOptions) {
-        if (key in pdfOptions) {
-          (this as any)[key] = (pdfOptions as any)[key]
+      for (const key in _restOptions) {
+        if (key in _restOptions) {
+          (this as any)[key] = (_restOptions as any)[key]
         }
       }
     }

@@ -1,6 +1,6 @@
 import type { Writer } from '../Writer'
 import type { FontOptions } from './Font'
-import { parseFont, Ttf, Woff } from 'modern-text'
+import { parseFont, Ttf, Woff } from 'modern-font'
 import { FontDescriptor, ObjectBlock, ToUnicode } from '../blocks'
 import { Font } from './Font'
 

@@ -1,7 +1,8 @@
+import type { Fonts as BaseFonts } from 'modern-font'
 import type { Pdf } from './Pdf'
 import type { Font, Resource } from './resources'
-import { fonts } from 'modern-text'
-import { FontType0, XObjectImage } from './resources'
+import { fonts as globalBaseFonts } from 'modern-font'
+import { FontType0, FontType1, XObjectImage } from './resources'
 
 export interface AssetResource {
   loading: boolean
@@ -12,8 +13,16 @@ export interface AssetResource {
 export class Asset {
   loaded = new Map<string, AssetResource>()
 
+  protected get _fonts(): BaseFonts {
+    return this._pdf.fonts ?? globalBaseFonts
+  }
+
+  get fallbackFont(): Font | undefined {
+    return FontType1.fallbackFont
+  }
+
   constructor(
-    protected pdf: Pdf,
+    protected _pdf: Pdf,
   ) {
     //
   }
@@ -25,7 +34,7 @@ export class Asset {
         loading: true,
         promise: Promise.resolve(handle())
           .then((resource) => {
-            resource.setPdf(this.pdf)
+            resource.setPdf(this._pdf)
             assetResource!.value = resource
             return resource
           })
@@ -89,7 +98,7 @@ export class Asset {
   addImage(url: string): Promise<XObjectImage> {
     return this._load(url, () => {
       return this.fetchImageBitmap(url).then((bitmap) => {
-        const resource = XObjectImage.from(bitmap, this.pdf.colorSpace)
+        const resource = XObjectImage.from(bitmap, this._pdf.colorSpace)
         bitmap.close()
         return resource
       })
@@ -102,7 +111,7 @@ export class Asset {
         return resource
       }
       else {
-        const result = fonts.get(family)
+        const result = this._fonts.get(family)
         if (!result) {
           throw new Error(`Failed to loadFont: ${family}`)
         }

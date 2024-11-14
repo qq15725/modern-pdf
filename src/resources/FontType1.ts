@@ -7,7 +7,7 @@ export interface FontType1Options extends FontOptions {
 }
 
 export class FontType1 extends Font {
-  static defaultFont?: FontType1
+  static fallbackFont?: FontType1
   static codePoints = { 338: 140, 339: 156, 352: 138, 353: 154, 376: 159, 381: 142, 382: 158, 402: 131, 710: 136, 732: 152, 8211: 150, 8212: 151, 8216: 145, 8217: 146, 8218: 130, 8220: 147, 8221: 148, 8222: 132, 8224: 134, 8225: 135, 8226: 149, 8230: 133, 8240: 137, 8249: 139, 8250: 155, 8364: 128, 8482: 153 }
   static standardFonts = [
     ['helvetica', 'normal', '/WinAnsiEncoding'],
@@ -32,8 +32,8 @@ export class FontType1 extends Font {
         baseFont: family,
         encoding,
       })
-      if (!this.defaultFont) {
-        this.defaultFont = resource
+      if (!this.fallbackFont) {
+        this.fallbackFont = resource
       }
       asset.addFont(family, resource)
     })
