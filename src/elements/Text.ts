@@ -46,6 +46,7 @@ export class Text extends Element {
   }
 
   override load(): Promise<Resource>[] {
+    this._text.fonts = this.pdf.fonts
     this._text.content = this.content
     this._text.style = { ...this.style }
     this._text.updateParagraphs()

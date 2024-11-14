@@ -154,7 +154,7 @@ export class Pdf {
     return writer.data
   }
 
-  async toArrayBuffer(): Promise<ArrayBuffer> {
+  async toBuffer(): Promise<ArrayBuffer> {
     const data = await this.generate()
     let len = data.length
     const buffer = new ArrayBuffer(len)
@@ -164,7 +164,7 @@ export class Pdf {
   }
 
   async toBlob(): Promise<Blob> {
-    return new Blob([await this.toArrayBuffer()], { type: 'application/pdf' })
+    return new Blob([await this.toBuffer()], { type: 'application/pdf' })
   }
 
   async toUrl(): Promise<string> {
