@@ -6,7 +6,7 @@ const resolvePath = (str: string) => resolve(__dirname, str)
 
 export default defineConfig({
   define: {
-    'import.meta.env.version': JSON.stringify(version),
+    __VERSION__: JSON.stringify(version),
   },
   build: {
     lib: {

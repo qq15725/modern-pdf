@@ -51,7 +51,7 @@ export interface PdfOptions {
 }
 
 export class Pdf {
-  static version = import.meta.env.version
+  static version = __VERSION__
 
   fonts?: Fonts
   asset = new Asset(this)
