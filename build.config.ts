@@ -1,4 +1,5 @@
 import { defineBuildConfig } from 'unbuild'
+import { version } from './package.json'
 
 export default defineBuildConfig({
   entries: [
@@ -9,6 +10,9 @@ export default defineBuildConfig({
   rollup: {
     emitCJS: true,
     esbuild: {
+      define: {
+        __VERSION__: JSON.stringify(version),
+      },
       tsconfigRaw: {
         compilerOptions: {
           experimentalDecorators: true,
