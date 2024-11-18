@@ -15,14 +15,14 @@ importers:
         specifier: ^0.8.2
         version: 0.8.2
       modern-font:
-        specifier: ^0.3.1
-        version: 0.3.1
+        specifier: ^0.3.2
+        version: 0.3.2
       modern-path2d:
-        specifier: ^0.2.5
-        version: 0.2.5
+        specifier: ^0.2.6
+        version: 0.2.6
       modern-text:
-        specifier: ^0.4.3
-        version: 0.4.3
+        specifier: ^0.4.5
+        version: 0.4.5
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^3.8.0
@@ -4461,14 +4461,14 @@ packages:
     name: mlly
     version: 1.4.2
 
-  modern-font@0.3.1:
-    resolution: {integrity: sha512-K0lWj8LsW7eoTactCylR8o9eL3xuiUy1GNqVr1fo5gMMhlyrg1ckJGjndAdG8XvvCTd9vwvu9ypnYc4vSC2qyw==}
+  modern-font@0.3.2:
+    resolution: {integrity: sha512-CnYmp7foUnv9j356UWo/MuF8x5HG9iOOimBfzh7i/z6oB2b1z1bvAyhq2UzSh6fyfg3vqSae1DIaPAG3MBZhjQ==}
 
-  modern-path2d@0.2.5:
-    resolution: {integrity: sha512-ipjLm4pF3URVoRZTNxGySPC+t7pbnbDY1wX2nJO9ltk3AMQ3zzpUKH8f5B7kW5l/LBDVf2QiwOt2U9NwjIdGyA==}
+  modern-path2d@0.2.6:
+    resolution: {integrity: sha512-6xd9H3oadG4li3RS+AdqhpzubBf8A1IOx8SKyOcM5q+hBUH7gNnqiIDZUBz/0bYLPxdWjlv1bPnkvXzfhtx6uA==}
 
-  modern-text@0.4.3:
-    resolution: {integrity: sha512-CXcpSAKlLBLvTv5gJsupDdwVZuWdkqFO49P4ueJJtDckt6vFavp6sC4+AM6KdPpO/pCGOB3HgT5HSntWCUgwJw==}
+  modern-text@0.4.5:
+    resolution: {integrity: sha512-SP8mbBVHZkq0TVohPXToAgrsU+Jez1svrk2++boeJiDcjUDjomHUT1CVvl9AsHIzTUHjftR3M0DAdTUJ/fax3Q==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -10428,16 +10428,16 @@ snapshots:
       pkg-types: https://registry.npmmirror.com/pkg-types/-/pkg-types-1.0.3.tgz
       ufo: https://registry.npmmirror.com/ufo/-/ufo-1.3.2.tgz
 
-  modern-font@0.3.1:
+  modern-font@0.3.2:
     dependencies:
       fflate: 0.8.2
 
-  modern-path2d@0.2.5: {}
+  modern-path2d@0.2.6: {}
 
-  modern-text@0.4.3:
+  modern-text@0.4.5:
     dependencies:
-      modern-font: 0.3.1
-      modern-path2d: 0.2.5
+      modern-font: 0.3.2
+      modern-path2d: 0.2.6
 
   mri@1.2.0: {}
 
