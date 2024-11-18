@@ -1,3 +1,13 @@
+## [0.1.9](https://github.com/qq15725/modern-pdf/compare/v0.1.8...v0.1.9) (2024-11-18)
+
+
+### Bug Fixes
+
+* version ([b646d0f](https://github.com/qq15725/modern-pdf/commit/b646d0f0d2bf1d7bc3de65194f61eb7fbc034b51))
+* version ([a1b76a4](https://github.com/qq15725/modern-pdf/commit/a1b76a47b6dffee6a74d5a263f5b96f8505c57b9))
+
+
+
 ## [0.1.8](https://github.com/qq15725/modern-pdf/compare/v0.1.7...v0.1.8) (2024-11-14)
 
 
