@@ -1,3 +1,9 @@
+## <small>0.2.1 (2024-11-25)</small>
+
+* feat: up deps ([9407bf8](https://github.com/qq15725/modern-pdf/commit/9407bf8))
+
+
+
 # [0.2.0](https://github.com/qq15725/modern-pdf/compare/v0.1.10...v0.2.0) (2024-11-20)
 
 
