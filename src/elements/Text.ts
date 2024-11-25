@@ -1,4 +1,4 @@
-import type { TextContent as BaseTextContent, TextStyle as BaseTextStyle } from 'modern-text'
+import type { TextContent as BaseTextContent, TextStyle as BaseTextStyle, MeasureResult } from 'modern-text'
 import type { Font, Resource } from '../resources'
 import type { Writer } from '../Writer'
 import { colord, extend } from 'colord'
@@ -29,6 +29,7 @@ export class Text extends Element {
   content: BaseTextContent
   style: Partial<TextStyle>
   protected _familyToFont = new Map<string, Font>()
+  protected _measureResult?: MeasureResult
 
   constructor(options: TextOptions = {}) {
     super()
@@ -45,12 +46,12 @@ export class Text extends Element {
     }
   }
 
-  override load(): Promise<Resource>[] {
+  override load(): Promise<Resource | undefined>[] {
     this._text.fonts = this.pdf.fonts
     this._text.content = this.content
     this._text.style = { ...this.style }
     this._text.updateParagraphs()
-    const list: Promise<Resource>[] = []
+    const list: Promise<Resource | undefined>[] = []
     this._text.paragraphs.forEach((paragraph) => {
       paragraph.fragments.forEach((fragment) => {
         const content = fragment.content
@@ -71,6 +72,10 @@ export class Text extends Element {
         }
       })
     })
+    list.push(this._text.measure().then((res) => {
+      this._measureResult = res
+      return undefined
+    }))
     return list
   }
 
@@ -88,7 +93,11 @@ export class Text extends Element {
   override writeTo(writer: Writer): void {
     super.writeTo(writer)
 
-    const { paragraphs, boundingBox } = this._text.measure()
+    if (!this._measureResult) {
+      return
+    }
+
+    const { paragraphs, boundingBox } = this._measureResult
 
     const {
       left = 0,

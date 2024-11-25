@@ -135,9 +135,9 @@ export class Pdf {
   async generate(): Promise<string> {
     const writer = new Writer()
     this._header.writeTo(writer)
-    const resources = new Set((
-      await Promise.all(this.pages.map(page => page.load()))
-    ).flatMap(v => v))
+    const resources = new Set(
+      (await Promise.all(this.pages.map(page => page.load()))).flat(),
+    )
     resources.forEach((resource) => {
       if (resource instanceof FontType0) {
         resource.updateFontData()

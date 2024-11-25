@@ -3,6 +3,6 @@ import { version } from '../package.json'
 
 export default defineConfig({
   define: {
-    'import.meta.env.version': JSON.stringify(version),
+    __VERSION__: JSON.stringify(version),
   },
 })

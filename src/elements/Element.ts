@@ -27,7 +27,7 @@ export class Element {
     return this
   }
 
-  load(): Promise<Resource>[] {
+  load(): Promise<Resource | undefined>[] {
     return []
   }
 

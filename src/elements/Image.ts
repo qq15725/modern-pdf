@@ -34,7 +34,7 @@ export class Image extends Element {
     this.src = src
   }
 
-  override load(): Promise<Resource>[] {
+  override load(): Promise<Resource | undefined>[] {
     return [
       this.pdf.asset.addImage(this.src).then(v => this._xObjectImage = v),
     ]
