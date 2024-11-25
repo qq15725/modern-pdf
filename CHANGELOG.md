@@ -1,3 +1,12 @@
+## [0.2.2](https://github.com/qq15725/modern-pdf/compare/v0.2.1...v0.2.2) (2024-11-25)
+
+
+### Bug Fixes
+
+* lock ([669e16c](https://github.com/qq15725/modern-pdf/commit/669e16c11a5b68a87e4ce69f22059a9c7c0baeba))
+
+
+
 ## <small>0.2.1 (2024-11-25)</small>
 
 * feat: up deps ([9407bf8](https://github.com/qq15725/modern-pdf/commit/9407bf8))
