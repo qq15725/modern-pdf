@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/qq15725/modern-pdf/compare/v0.2.4...v0.3.0) (2024-12-02)
+
+
+### Features
+
+* up deps ([350835a](https://github.com/qq15725/modern-pdf/commit/350835a7f710e2bf1de5be41fc36fd44bf031990))
+
+
+
 ## [0.2.4](https://github.com/qq15725/modern-pdf/compare/v0.2.3...v0.2.4) (2024-11-25)
 
 
