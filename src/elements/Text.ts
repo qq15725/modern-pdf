@@ -72,10 +72,11 @@ export class Text extends Element {
         }
       })
     })
-    list.push(this._text.measure().then((res) => {
-      this._measureResult = res
+    list.push(this._text.load().then(() => {
+      this._measureResult = this._text.measure()
       return undefined
     }))
+    list.push()
     return list
   }
 
