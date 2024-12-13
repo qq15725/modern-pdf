@@ -21,8 +21,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.6
       modern-text:
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.2
+        version: 0.7.2
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^3.8.0
@@ -4467,8 +4467,8 @@ packages:
   modern-path2d@0.2.6:
     resolution: {integrity: sha512-6xd9H3oadG4li3RS+AdqhpzubBf8A1IOx8SKyOcM5q+hBUH7gNnqiIDZUBz/0bYLPxdWjlv1bPnkvXzfhtx6uA==}
 
-  modern-text@0.6.0:
-    resolution: {integrity: sha512-IboRHpK5iqzdJxeS+zTWaENgFEH56f1u1MiXz73d2rA20uPCiV7s/2kowIWe+unegNwGNZRzywIP7U9/7Jy7MQ==}
+  modern-text@0.7.2:
+    resolution: {integrity: sha512-52uDJd/azLCOtJ5tROL4z0qUukZjPCJyTnNVvFYRw143nApFkdoT3Tx5Jn6X63dPaRBoCxmU3b+4+HJ/h+WYoQ==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -10434,7 +10434,7 @@ snapshots:
 
   modern-path2d@0.2.6: {}
 
-  modern-text@0.6.0:
+  modern-text@0.7.2:
     dependencies:
       modern-font: 0.3.2
       modern-path2d: 0.2.6
