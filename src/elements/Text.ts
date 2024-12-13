@@ -21,20 +21,23 @@ export interface TextStyle extends BaseTextStyle {
 
 export interface TextOptions {
   content?: BaseTextContent
+  measureDom?: HTMLElement
   style?: Partial<TextStyle>
 }
 
 export class Text extends Element {
   protected _text = new BaseText()
   content: BaseTextContent
+  measureDom?: HTMLElement
   style: Partial<TextStyle>
   protected _familyToFont = new Map<string, Font>()
   protected _measureResult?: MeasureResult
 
   constructor(options: TextOptions = {}) {
     super()
-    const { content = '', style } = options
+    const { content = '', measureDom, style } = options
     this.content = content
+    this.measureDom = measureDom
     this.style = {
       left: 0,
       top: 0,
@@ -73,7 +76,7 @@ export class Text extends Element {
       })
     })
     list.push(this._text.load().then(() => {
-      this._measureResult = this._text.measure()
+      this._measureResult = this._text.measure(this.measureDom)
       return undefined
     }))
     list.push()
