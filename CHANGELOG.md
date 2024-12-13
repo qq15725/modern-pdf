@@ -1,3 +1,13 @@
+## [0.3.2](https://github.com/qq15725/modern-pdf/compare/v0.3.1...v0.3.2) (2024-12-13)
+
+
+### Features
+
+* text support  measureDom option ([ac6ba85](https://github.com/qq15725/modern-pdf/commit/ac6ba8552ceca039342bf534a5bb141486dffd2a))
+* up deps ([fa389aa](https://github.com/qq15725/modern-pdf/commit/fa389aa93bbdfc5941da8be979041e184f8daa5e))
+
+
+
 ## [0.3.1](https://github.com/qq15725/modern-pdf/compare/v0.3.0...v0.3.1) (2024-12-13)
 
 
