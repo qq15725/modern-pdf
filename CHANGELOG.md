@@ -1,3 +1,12 @@
+# [1.0.0](https://github.com/qq15725/modern-pdf/compare/v0.3.3...v1.0.0) (2024-12-23)
+
+
+### Features
+
+* rename `Pdf` to `PDF` ([60948fc](https://github.com/qq15725/modern-pdf/commit/60948fcde6cff9514ea0c94a044201228c53b194))
+
+
+
 ## [0.3.3](https://github.com/qq15725/modern-pdf/compare/v0.3.2...v0.3.3) (2024-12-23)
 
 
