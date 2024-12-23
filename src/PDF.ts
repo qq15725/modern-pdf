@@ -30,7 +30,7 @@ export type PageOptionsWithChildren = PageOptions & {
   )[]
 }
 
-export interface PdfOptions {
+export interface PDFOptions {
   fonts?: Fonts
   id?: string
   colorSpace?: 'rgb' | 'cmyk'
@@ -50,7 +50,7 @@ export interface PdfOptions {
   pages?: PageOptionsWithChildren[]
 }
 
-export class Pdf {
+export class PDF {
   static version = __VERSION__
 
   fonts?: Fonts
@@ -72,8 +72,8 @@ export class Pdf {
   author?: string
   creationDate = new Date()
   modDate = new Date()
-  creator = `modern-pdf@^${Pdf.version}`
-  producer = `modern-pdf@^${Pdf.version}`
+  creator = `modern-pdf@^${PDF.version}`
+  producer = `modern-pdf@^${PDF.version}`
 
   // Catalog
   pageLayout?: PageLayout
@@ -88,7 +88,7 @@ export class Pdf {
   _pages = new Pages().setPdf(this)
   _header = new Header().setPdf(this)
 
-  constructor(options?: PdfOptions) {
+  constructor(options?: PDFOptions) {
     FontType1.loadStandardFonts(this.asset)
     if (options) {
       const { pages, ..._restOptions } = options

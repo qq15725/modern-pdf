@@ -1,5 +1,5 @@
 import type { Element } from '../elements'
-import type { Pdf } from '../Pdf'
+import type { PDF } from '../PDF'
 import type { Resource } from '../resources'
 import type { Writer } from '../Writer'
 import type { Pages } from './Pages'
@@ -42,7 +42,7 @@ export class Page extends ObjectBlock {
     options && this.setProperties(options)
   }
 
-  override setPdf(pdf: Pdf): this {
+  override setPdf(pdf: PDF): this {
     this._parent = pdf._pages
     this._contents.setPdf(pdf)
     this._resources.setPdf(pdf)

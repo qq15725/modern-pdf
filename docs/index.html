@@ -13,12 +13,12 @@
 
 <script type="module">
   import { fonts } from 'modern-font'
-  import { Pdf } from '../src'
+  import { PDF } from '../src'
 
   async function main() {
     fonts.fallbackFont = await fonts.load({ family: 'test', src: '/test.woff' })
 
-    const pdf = new Pdf({
+    const pdf = new PDF({
       fonts,
       // colorSpace: 'cmyk',
       pages: [

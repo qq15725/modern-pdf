@@ -21,9 +21,9 @@
 ## Usage
 
 ```ts
-import { Pdf } from 'modern-pdf'
+import { PDF } from 'modern-pdf'
 
-const pdf = new Pdf({
+const pdf = new PDF({
   // colorSpace: 'cmyk',
   pages: [
     {

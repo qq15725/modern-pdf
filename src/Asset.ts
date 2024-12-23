@@ -1,5 +1,5 @@
 import type { Fonts as BaseFonts } from 'modern-font'
-import type { Pdf } from './Pdf'
+import type { PDF } from './PDF'
 import type { Font, Resource } from './resources'
 import { fonts as globalBaseFonts } from 'modern-font'
 import { FontType0, FontType1, XObjectImage } from './resources'
@@ -22,7 +22,7 @@ export class Asset {
   }
 
   constructor(
-    protected _pdf: Pdf,
+    protected _pdf: PDF,
   ) {
     //
   }

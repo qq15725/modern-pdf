@@ -1,5 +1,5 @@
 import type { Page } from '../blocks'
-import type { Pdf } from '../Pdf'
+import type { PDF } from '../PDF'
 import type { Resource } from '../resources'
 import type { Writer } from '../Writer'
 
@@ -7,8 +7,8 @@ export const PI = Math.PI
 export const DEG_TO_RAD = PI / 180
 
 export class Element {
-  protected _pdf?: Pdf
-  get pdf(): Pdf {
+  protected _pdf?: PDF
+  get pdf(): PDF {
     if (!this._pdf)
       throw new Error('This element is missing pdf')
     return this._pdf

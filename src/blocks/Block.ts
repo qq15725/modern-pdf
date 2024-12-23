@@ -1,17 +1,17 @@
-import type { Pdf } from '../Pdf'
+import type { PDF } from '../PDF'
 import type { Writer } from '../Writer'
 
 export class Block {
   offset = 0
 
-  protected _pdf?: Pdf
-  get pdf(): Pdf {
+  protected _pdf?: PDF
+  get pdf(): PDF {
     if (!this._pdf)
       throw new Error('This block is missing pdf')
     return this._pdf
   }
 
-  setPdf(pdf: Pdf): this {
+  setPdf(pdf: PDF): this {
     this._pdf = pdf
     return this
   }
