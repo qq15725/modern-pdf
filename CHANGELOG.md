@@ -1,3 +1,12 @@
+# [1.1.0](https://github.com/qq15725/modern-pdf/compare/v1.0.0...v1.1.0) (2024-12-25)
+
+
+### Features
+
+* use IDOC type ([8adad7b](https://github.com/qq15725/modern-pdf/commit/8adad7b63218340b6b3396dd17b34f8e8eef9643))
+
+
+
 # [1.0.0](https://github.com/qq15725/modern-pdf/compare/v0.3.3...v1.0.0) (2024-12-23)
 
 
