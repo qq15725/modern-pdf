@@ -66,7 +66,7 @@ export class Element {
     } = options
 
     const tx = left
-    const ty = this.page.height - (top + height)
+    const ty = (this.page.style.height ?? 0) - (top + height)
 
     if (rotate) {
       const _rotate = rotate * DEG_TO_RAD

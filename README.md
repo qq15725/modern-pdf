@@ -24,11 +24,13 @@
 import { PDF } from 'modern-pdf'
 
 const pdf = new PDF({
-  // colorSpace: 'cmyk',
-  pages: [
+  // meta: {
+  //   colorSpace: 'cmyk',
+  // },
+  children: [
     {
-      width: 300,
-      height: 600,
+      name: 'page1',
+      style: { width: 300, height: 600 },
       children: [
         {
           type: 'image',

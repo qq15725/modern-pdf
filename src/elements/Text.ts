@@ -1,4 +1,5 @@
-import type { TextContent as BaseTextContent, TextStyle as BaseTextStyle, MeasureResult } from 'modern-text'
+import type { IText, ITextContent, ITextStyle } from 'modern-idoc'
+import type { MeasureResult } from 'modern-text'
 import type { Font, Resource } from '../resources'
 import type { Writer } from '../Writer'
 import { colord, extend } from 'colord'
@@ -10,43 +11,24 @@ import { Element } from './Element'
 
 extend([cmykPlugin])
 
-export interface TextStyle extends BaseTextStyle {
-  left: number
-  top: number
-  width: number
-  height: number
-  wordSpacing: number
-  rotate: number
-}
-
-export interface TextOptions {
-  content?: BaseTextContent
+export interface TextOptions extends Partial<Omit<IText, 'type'>> {
   measureDom?: HTMLElement
-  style?: Partial<TextStyle>
 }
 
 export class Text extends Element {
   protected _text = new BaseText()
-  content: BaseTextContent
+  content: ITextContent
   measureDom?: HTMLElement
-  style: Partial<TextStyle>
+  style: Partial<ITextStyle>
   protected _familyToFont = new Map<string, Font>()
   protected _measureResult?: MeasureResult
 
   constructor(options: TextOptions = {}) {
     super()
-    const { content = '', measureDom, style } = options
+    const { content = '', measureDom, style = {} } = options
     this.content = content
     this.measureDom = measureDom
-    this.style = {
-      left: 0,
-      top: 0,
-      wordSpacing: 0,
-      rotate: 0,
-      height: 0,
-      width: 0,
-      ...style,
-    }
+    this.style = style
   }
 
   override load(): Promise<Resource | undefined>[] {

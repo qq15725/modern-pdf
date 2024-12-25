@@ -1,36 +1,21 @@
+import type { IElementStyle, IImage } from 'modern-idoc'
 import type { Resource, XObjectImage } from '../resources'
 import type { Writer } from '../Writer'
 import { Element } from './Element'
 
-export interface ImaegStyle {
-  left: number
-  top: number
-  width: number
-  height: number
-  rotate: number
-}
-
-export interface ImageOptions {
-  src?: string
-  style?: Partial<ImaegStyle>
+export interface ImageOptions extends Partial<Omit<IImage, 'type'>> {
+  //
 }
 
 export class Image extends Element {
-  src = ''
-  style: ImaegStyle
+  src: string
+  style: Partial<IElementStyle>
   protected _xObjectImage?: XObjectImage
 
-  constructor(options: ImageOptions = {}) {
+  constructor(options: ImageOptions) {
     super()
-    const { src = '', style } = options
-    this.style = {
-      left: 0,
-      top: 0,
-      width: 0,
-      height: 0,
-      rotate: 0,
-      ...style,
-    }
+    const { src = '', style = {} } = options
+    this.style = style
     this.src = src
   }
 

@@ -1,6 +1,7 @@
 import type { Fonts } from 'modern-font'
-import type { PageOptions } from './blocks'
-import type { Element, ImageOptions, TextOptions } from './elements'
+import type { IDOC } from 'modern-idoc'
+import type { IPage } from './blocks'
+import type { Element } from './elements'
 import { Asset } from './Asset'
 import { Catalog, Eof, Header, Info, Page, Pages, Trailer, Xref } from './blocks'
 import { Image, Text } from './elements'
@@ -23,18 +24,10 @@ export type PageMode =
   | '/UseOC'
   | '/UseAttachments'
 
-export type PageOptionsWithChildren = PageOptions & {
-  children?: (
-    | ({ type: 'image' } & ImageOptions)
-    | ({ type: 'text' } & TextOptions)
-  )[]
-}
-
-export interface PDFOptions {
-  fonts?: Fonts
+export interface IPDFMeta {
   id?: string
   colorSpace?: 'rgb' | 'cmyk'
-  // Catalog
+  // catalog
   pageLayout?: PageLayout
   pageMode?: PageMode
   // info
@@ -46,8 +39,12 @@ export interface PDFOptions {
   modDate?: Date
   creator?: string
   producer?: string
-  // pages
-  pages?: PageOptionsWithChildren[]
+}
+
+export interface IPDF extends IDOC {
+  fonts?: Fonts
+  meta?: IPDFMeta
+  children?: IPage[]
 }
 
 export class PDF {
@@ -88,25 +85,26 @@ export class PDF {
   _pages = new Pages().setPdf(this)
   _header = new Header().setPdf(this)
 
-  constructor(options?: PDFOptions) {
+  constructor(doc?: IPDF) {
     FontType1.loadStandardFonts(this.asset)
-    if (options) {
-      const { pages, ..._restOptions } = options
-      pages?.forEach(props => this.addPage(props))
-      for (const key in _restOptions) {
-        if (key in _restOptions) {
-          (this as any)[key] = (_restOptions as any)[key]
+    if (doc) {
+      const { fonts, children, meta } = doc
+      children?.forEach(props => this.addPage(props))
+      this.fonts = fonts
+      for (const key in meta) {
+        if (key in meta) {
+          (this as any)[key] = (meta as any)[key]
         }
       }
     }
   }
 
-  addPage(options: PageOptionsWithChildren): Page {
+  addPage(options: IPage): Page {
     const { children, ...pageOptions } = options
     const page = new Page(pageOptions).setPdf(this)
     this.activatePage(this.pages.push(page) - 1)
     children?.forEach(({ type, ...elementOptions }) => {
-      page.appendChild(this.createElement(type, elementOptions))
+      page.appendChild(PDF.createElement(type, elementOptions))
     })
     return page
   }
@@ -116,18 +114,18 @@ export class PDF {
     return this
   }
 
-  createElement(type: string, options: Record<string, any>): Element {
+  static createElement(type: string, options: Record<string, any>): Element {
     switch (type) {
       case 'image':
-        return new Image(options)
+        return new Image(options as any)
       case 'text':
       default:
-        return new Text(options)
+        return new Text(options as any)
     }
   }
 
   addElement(type: string, options: Record<string, any>): Element {
-    const element = this.createElement(type, options)
+    const element = PDF.createElement(type, options)
     this.page.appendChild(element)
     return element
   }

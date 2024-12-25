@@ -1,4 +1,5 @@
-import type { Element } from '../elements'
+import type { IElement, IElementStyle } from 'modern-idoc'
+import type { Element, ImageOptions, TextOptions } from '../elements'
 import type { PDF } from '../PDF'
 import type { Resource } from '../resources'
 import type { Writer } from '../Writer'
@@ -7,12 +8,7 @@ import { Resources } from '../resources'
 import { Contents } from './Contents'
 import { ObjectBlock } from './ObjectBlock'
 
-export interface PageOptions {
-  rotate?: number
-  left?: number
-  top?: number
-  width?: number
-  height?: number
+export interface IPageMeta {
   cropBox?: number[]
   bleedBox?: number[]
   trimBox?: number[]
@@ -20,12 +16,17 @@ export interface PageOptions {
   userUnit?: number
 }
 
+export interface IPage extends IElement {
+  meta?: IPageMeta
+  children?: (
+    | ({ type: 'text' } & ImageOptions)
+    | ({ type: 'text' } & TextOptions)
+  )[]
+}
+
 export class Page extends ObjectBlock {
-  rotate?: number
-  left = 0
-  top = 0
-  width = 0
-  height = 0
+  style: Partial<IElementStyle>
+
   cropBox?: number[]
   bleedBox?: number[]
   trimBox?: number[]
@@ -37,9 +38,11 @@ export class Page extends ObjectBlock {
   _contents = new Contents()
   _resources = new Resources()
 
-  constructor(options?: PageOptions) {
+  constructor(options: IPage = {}) {
     super()
-    options && this.setProperties(options)
+    const { style = {}, meta } = options
+    this.style = style
+    meta && this.setProperties(meta)
   }
 
   override setPdf(pdf: PDF): this {
@@ -73,6 +76,13 @@ export class Page extends ObjectBlock {
   }
 
   override writeTo(writer: Writer): void {
+    const {
+      rotate = 0,
+      left = 0,
+      top = 0,
+      width = 0,
+      height = 0,
+    } = this.style
     this.children.forEach(child => child.writeTo(this._contents.writer))
     this._resources.writeTo(writer)
     this._contents.writeTo(writer)
@@ -82,8 +92,8 @@ export class Page extends ObjectBlock {
         '/Parent': this._parent,
         '/Resources': this._resources,
         '/Contents': this._contents,
-        '/Rotate': this.rotate,
-        '/MediaBox': [this.left, this.top, this.width, this.height],
+        '/Rotate': rotate,
+        '/MediaBox': [left, top, width, height],
         '/CropBox': this.cropBox,
         '/BleedBox': this.bleedBox,
         '/TrimBox': this.trimBox,
