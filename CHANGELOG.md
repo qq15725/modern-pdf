@@ -1,3 +1,17 @@
+# [1.2.0](https://github.com/qq15725/modern-pdf/compare/v1.1.0...v1.2.0) (2024-12-30)
+
+
+### Bug Fixes
+
+* text auto wrap ([e9dfd68](https://github.com/qq15725/modern-pdf/commit/e9dfd68c3b15dbfd066a73fc058eb653b2b73acb))
+
+
+### Features
+
+* up IDOC ([835d343](https://github.com/qq15725/modern-pdf/commit/835d3435094e8e5f47d5d33d22f3c999e2546f75))
+
+
+
 # [1.1.0](https://github.com/qq15725/modern-pdf/compare/v1.0.0...v1.1.0) (2024-12-25)
 
 
