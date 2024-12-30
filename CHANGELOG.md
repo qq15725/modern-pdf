@@ -1,3 +1,12 @@
+## [1.2.1](https://github.com/qq15725/modern-pdf/compare/v1.2.0...v1.2.1) (2024-12-30)
+
+
+### Bug Fixes
+
+* writingMode ([7ae3e61](https://github.com/qq15725/modern-pdf/commit/7ae3e61a2ee2b3125372614e4a58f491cd98d8fe))
+
+
+
 # [1.2.0](https://github.com/qq15725/modern-pdf/compare/v1.1.0...v1.2.0) (2024-12-30)
 
 
