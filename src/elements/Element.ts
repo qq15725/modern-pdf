@@ -230,7 +230,11 @@ export class Element {
       p.fragments.forEach((f) => {
         let prevChar: Character | undefined
         f.characters.forEach((c) => {
-          if (prevChar?.lineBox.top !== c.lineBox.top) {
+          if (
+            c.isVertical
+              ? prevChar?.lineBox.left !== c.lineBox.left
+              : prevChar?.lineBox.top !== c.lineBox.top
+          ) {
             if (group.length) {
               groups.push(group)
               group = []
