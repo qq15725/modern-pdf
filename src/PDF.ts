@@ -1,10 +1,9 @@
 import type { Fonts } from 'modern-font'
-import type { IDOC } from 'modern-idoc'
-import type { IPage } from './blocks'
-import type { Element } from './elements'
+import type { IDOCDocument, IDOCElement } from 'modern-idoc'
+import type { PageOptions } from './blocks'
 import { Asset } from './Asset'
 import { Catalog, Eof, Header, Info, Page, Pages, Trailer, Xref } from './blocks'
-import { Image, Text } from './elements'
+import { Element } from './elements'
 import { FontType0, FontType1 } from './resources'
 import { Writer } from './Writer'
 
@@ -24,7 +23,7 @@ export type PageMode =
   | '/UseOC'
   | '/UseAttachments'
 
-export interface IPDFMeta {
+export interface PDFOptionMeta {
   id?: string
   colorSpace?: 'rgb' | 'cmyk'
   // catalog
@@ -41,10 +40,10 @@ export interface IPDFMeta {
   producer?: string
 }
 
-export interface IPDF extends IDOC {
+export interface PDFOptions extends IDOCDocument {
   fonts?: Fonts
-  meta?: IPDFMeta
-  children?: IPage[]
+  meta?: PDFOptionMeta
+  children?: PageOptions[]
 }
 
 export class PDF {
@@ -85,7 +84,7 @@ export class PDF {
   _pages = new Pages().setPdf(this)
   _header = new Header().setPdf(this)
 
-  constructor(doc?: IPDF) {
+  constructor(doc?: PDFOptions) {
     FontType1.loadStandardFonts(this.asset)
     if (doc) {
       const { fonts, children, meta } = doc
@@ -99,12 +98,12 @@ export class PDF {
     }
   }
 
-  addPage(options: IPage): Page {
+  addPage(options: PageOptions): Page {
     const { children, ...pageOptions } = options
     const page = new Page(pageOptions).setPdf(this)
     this.activatePage(this.pages.push(page) - 1)
-    children?.forEach(({ type, ...elementOptions }) => {
-      page.appendChild(PDF.createElement(type, elementOptions))
+    children?.forEach((elementOptions) => {
+      page.appendChild(new Element(elementOptions))
     })
     return page
   }
@@ -114,18 +113,8 @@ export class PDF {
     return this
   }
 
-  static createElement(type: string, options: Record<string, any>): Element {
-    switch (type) {
-      case 'image':
-        return new Image(options as any)
-      case 'text':
-      default:
-        return new Text(options as any)
-    }
-  }
-
-  addElement(type: string, options: Record<string, any>): Element {
-    const element = PDF.createElement(type, options)
+  addElement(options: IDOCElement): Element {
+    const element = new Element(options)
     this.page.appendChild(element)
     return element
   }

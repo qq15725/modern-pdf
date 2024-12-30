@@ -1,5 +1,5 @@
-import type { IElement, IElementStyle } from 'modern-idoc'
-import type { Element, ImageOptions, TextOptions } from '../elements'
+import type { IDOCElement, IDOCStyleDeclaration } from 'modern-idoc'
+import type { Element } from '../elements'
 import type { PDF } from '../PDF'
 import type { Resource } from '../resources'
 import type { Writer } from '../Writer'
@@ -8,7 +8,7 @@ import { Resources } from '../resources'
 import { Contents } from './Contents'
 import { ObjectBlock } from './ObjectBlock'
 
-export interface IPageMeta {
+export interface PageOptionMeta {
   cropBox?: number[]
   bleedBox?: number[]
   trimBox?: number[]
@@ -16,16 +16,12 @@ export interface IPageMeta {
   userUnit?: number
 }
 
-export interface IPage extends IElement {
-  meta?: IPageMeta
-  children?: (
-    | ({ type: 'text' } & ImageOptions)
-    | ({ type: 'text' } & TextOptions)
-  )[]
+export interface PageOptions extends IDOCElement {
+  meta?: PageOptionMeta
 }
 
 export class Page extends ObjectBlock {
-  style: Partial<IElementStyle>
+  style: Partial<IDOCStyleDeclaration>
 
   cropBox?: number[]
   bleedBox?: number[]
@@ -38,7 +34,7 @@ export class Page extends ObjectBlock {
   _contents = new Contents()
   _resources = new Resources()
 
-  constructor(options: IPage = {}) {
+  constructor(options: PageOptions = {}) {
     super()
     const { style = {}, meta } = options
     this.style = style
