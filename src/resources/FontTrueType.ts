@@ -1,6 +1,6 @@
 import type { Writer } from '../Writer'
 import type { FontOptions } from './Font'
-import { parseFont, Ttf, Woff } from 'modern-font'
+import { parseSFNTFont, TTF } from 'modern-font'
 import { FontDescriptor, ObjectBlock, ToUnicode } from '../blocks'
 import { Font } from './Font'
 
@@ -16,10 +16,7 @@ export class FontTrueType extends Font {
   widths?: number[]
 
   static from(name: string, fontData: ArrayBuffer): FontTrueType {
-    const font = parseFont(new DataView(fontData))
-    if (!(font instanceof Ttf || font instanceof Woff)) {
-      throw new TypeError('Failed to parseFont')
-    }
+    const font = parseSFNTFont(new DataView(fontData))
     const sfnt = font.sfnt
     const version = sfnt.os2.version
     const unitsPerEm = sfnt.head.unitsPerEm
@@ -36,7 +33,7 @@ export class FontTrueType extends Font {
       ? sfnt.os2.sCapHeight
       : ascent
 
-    const fontFile2 = new ObjectBlock({ data: new Uint8Array(Ttf.from(sfnt).buffer), addLength1: true })
+    const fontFile2 = new ObjectBlock({ data: new Uint8Array(TTF.from(sfnt).buffer), addLength1: true })
     const toUnicode = new ToUnicode()
     const fontDescriptor = new FontDescriptor({
       descent,

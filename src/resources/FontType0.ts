@@ -1,7 +1,7 @@
 import type { Font as TextFont } from 'modern-font'
 import type { Writer } from '../Writer'
 import type { FontOptions } from './Font'
-import { minifyFont, parseFont, Ttf, Woff } from 'modern-font'
+import { minifyFont, parseSFNTFont, TTF } from 'modern-font'
 import { FontDescriptor, ObjectBlock, ToUnicode } from '../blocks'
 import { Font } from './Font'
 import { FontCIDFontType2 } from './FontCIDFontType2'
@@ -65,10 +65,7 @@ export class FontType0 extends Font {
       console.error('Failed to minifyFont', err)
       fontData = this.fontData
     }
-    const font = parseFont(new DataView(fontData))
-    if (!(font instanceof Ttf || font instanceof Woff)) {
-      throw new TypeError('Failed to parseFont')
-    }
+    const font = parseSFNTFont(new DataView(fontData))
     this.textFont = font
     const sfnt = font.sfnt
     const version = sfnt.os2.version
@@ -100,7 +97,7 @@ export class FontType0 extends Font {
       flags |= 1 << 6
     flags |= 1 << 5
 
-    const fontFile2 = new ObjectBlock({ data: new Uint8Array(Ttf.from(sfnt).buffer), addLength1: true })
+    const fontFile2 = new ObjectBlock({ data: new Uint8Array(TTF.from(sfnt).buffer), addLength1: true })
     const toUnicode = new ToUnicode({
       cmap: Object.entries(unicodeToGlyphIndexMap)
         .reduce((acc, [k, v]) => ({ ...acc, [v]: k }), {}),
