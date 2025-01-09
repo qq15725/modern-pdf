@@ -1,3 +1,12 @@
+## [1.2.5](https://github.com/qq15725/modern-pdf/compare/v1.2.4...v1.2.5) (2025-01-09)
+
+
+### Features
+
+* up modern-font ([861647b](https://github.com/qq15725/modern-pdf/commit/861647b67aa7ed4241a1a23fb90b6fd176a0f64f))
+
+
+
 ## [1.2.4](https://github.com/qq15725/modern-pdf/compare/v1.2.3...v1.2.4) (2025-01-08)
 
 
