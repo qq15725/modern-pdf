@@ -27,7 +27,7 @@ export class Asset {
     //
   }
 
-  protected async _load<T extends Resource >(url: string, handle: () => T | Promise<T>): Promise<T> {
+  protected async _load<T extends Resource>(url: string, handle: () => T | Promise<T>): Promise<T> {
     let assetResource = this.loaded.get(url)
     if (!assetResource) {
       assetResource = {
