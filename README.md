@@ -34,7 +34,7 @@ const pdf = new PDF({
       children: [
         {
           style: { rotate: 60, width: 50, height: 50 },
-          image: '/assets/test.jpg',
+          foreground: '/assets/test.jpg',
         },
         {
           style: { rotate: 40, left: 100, top: 100, fontSize: 20, color: '#FF00FF' },
