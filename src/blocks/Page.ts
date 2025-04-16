@@ -1,4 +1,4 @@
-import type { IDOCElement, IDOCStyleDeclaration } from 'modern-idoc'
+import type { Element as IDocElement, StyleDeclaration } from 'modern-idoc'
 import type { Element } from '../elements'
 import type { PDF } from '../PDF'
 import type { Resource } from '../resources'
@@ -16,12 +16,12 @@ export interface PageOptionMeta {
   userUnit?: number
 }
 
-export interface PageOptions extends IDOCElement {
+export interface PageOptions extends IDocElement {
   meta?: PageOptionMeta
 }
 
 export class Page extends ObjectBlock {
-  style: Partial<IDOCStyleDeclaration>
+  style: Partial<StyleDeclaration>
 
   cropBox?: number[]
   bleedBox?: number[]

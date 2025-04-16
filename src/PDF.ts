@@ -1,5 +1,5 @@
 import type { Fonts } from 'modern-font'
-import type { IDOCDocument, IDOCElement } from 'modern-idoc'
+import type { Document as IDocDocument, Element as IDocElement } from 'modern-idoc'
 import type { PageOptions } from './blocks'
 import { Asset } from './Asset'
 import { Catalog, Eof, Header, Info, Page, Pages, Trailer, Xref } from './blocks'
@@ -40,7 +40,7 @@ export interface PDFOptionMeta {
   producer?: string
 }
 
-export interface PDFOptions extends IDOCDocument {
+export interface PDFOptions extends IDocDocument {
   fonts?: Fonts
   meta?: PDFOptionMeta
   children?: PageOptions[]
@@ -113,7 +113,7 @@ export class PDF {
     return this
   }
 
-  addElement(options: IDOCElement): Element {
+  addElement(options: IDocElement): Element {
     const element = new Element(options)
     this.page.appendChild(element)
     return element

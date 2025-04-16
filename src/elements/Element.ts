@@ -1,4 +1,4 @@
-import type { IDOCElement, IDOCElementDeclaration } from 'modern-idoc'
+import type { ElementDeclaration, Element as IDocElement } from 'modern-idoc'
 import type { Character, MeasureResult } from 'modern-text'
 import type { Page } from '../blocks'
 import type { PDF } from '../PDF'
@@ -31,7 +31,7 @@ export const PI = Math.PI
 export const DEG_TO_RAD = PI / 180
 
 export class Element {
-  protected _source?: IDOCElementDeclaration
+  protected _source?: ElementDeclaration
   protected _image?: XObjectImage
   protected _text = new Text()
   protected _familyToFont = new Map<string, Font>()
@@ -56,7 +56,7 @@ export class Element {
     return this
   }
 
-  constructor(options?: IDOCElement) {
+  constructor(options?: IDocElement) {
     if (options) {
       this._source = normalizeElement(options)
     }
@@ -69,11 +69,12 @@ export class Element {
       return items
     }
 
-    const { image, text, style } = this._source
+    const { foreground, text, style } = this._source
 
-    if (image) {
+    if (foreground?.src) {
       items.push(
-        this.pdf.asset.addImage(image.url).then(v => this._image = v),
+        this.pdf.asset.addImage(foreground.src)
+          .then(v => this._image = v),
       )
     }
 
@@ -136,7 +137,7 @@ export class Element {
     } = options
 
     const tx = left
-    const ty = (this.page.style.height ?? 0) - (top + height)
+    const ty = (Number(this.page.style.height ?? 0)) - (top + height)
 
     if (rotate) {
       const _rotate = rotate * DEG_TO_RAD
@@ -172,13 +173,13 @@ export class Element {
     } = this._source?.style ?? {}
     writer.write('q') // save graphics state
     this._writeTransform(writer, {
-      left,
-      top,
-      width,
-      height,
+      left: Number(left),
+      top: Number(top),
+      width: Number(width),
+      height: Number(height),
       rotate,
-      scaleX: width,
-      scaleY: height,
+      scaleX: Number(width),
+      scaleY: Number(height),
     })
     writer.write(`/${resource.resourceId} Do`) // paint Image
     writer.write('Q') // restore graphics state
@@ -213,10 +214,10 @@ export class Element {
 
     writer.write('q') // save graphics state
     this._writeTransform(writer, {
-      left,
-      top,
-      width,
-      height,
+      left: Number(left),
+      top: Number(top),
+      width: Number(width),
+      height: Number(height),
       rotate,
     })
     writer.write('BT')
@@ -291,7 +292,7 @@ export class Element {
       } = style
 
       const tx = glyphBox.left
-      const ty = height - (inlineBox.top + baseline)
+      const ty = Number(height) - (inlineBox.top + baseline)
       const lineSpacing = glyphBox.height
 
       let skewY = 0
@@ -351,15 +352,15 @@ export class Element {
             case 'underline':
               writer.write(textColor.toUpperCase()) // color
               writer.write(`${(fontSize * 0.1).toFixed(4)} w`)
-              writer.write(`${[tx, height - (glyphBox.top + glyphBox.height)].map(val => val.toFixed(4)).join(' ')} m`)
-              writer.write(`${[tx + inlineBox.width + 1, height - (glyphBox.top + glyphBox.height)].map(val => val.toFixed(4)).join(' ')} l`)
+              writer.write(`${[tx, Number(height) - (glyphBox.top + glyphBox.height)].map(val => val.toFixed(4)).join(' ')} m`)
+              writer.write(`${[tx + inlineBox.width + 1, Number(height) - (glyphBox.top + glyphBox.height)].map(val => val.toFixed(4)).join(' ')} l`)
               writer.write('S')
               break
             case 'line-through':
               writer.write(textColor.toUpperCase()) // color
               writer.write(`${(fontSize * 0.1).toFixed(4)} w`)
-              writer.write(`${[tx, height / 2].map(val => val.toFixed(4)).join(' ')} m`)
-              writer.write(`${[tx + inlineBox.width + 1, height / 2].map(val => val.toFixed(4)).join(' ')} l`)
+              writer.write(`${[tx, Number(height) / 2].map(val => val.toFixed(4)).join(' ')} m`)
+              writer.write(`${[tx + inlineBox.width + 1, Number(height) / 2].map(val => val.toFixed(4)).join(' ')} l`)
               writer.write('S')
               break
           }
