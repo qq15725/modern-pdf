@@ -1,3 +1,12 @@
+# [1.3.0](https://github.com/qq15725/modern-pdf/compare/v1.2.6...v1.3.0) (2025-07-08)
+
+
+### Features
+
+* up deps / rename PDF to Pdf ([2091316](https://github.com/qq15725/modern-pdf/commit/2091316d537076b2acc0b0e07e29f868c7923d03))
+
+
+
 ## [1.2.6](https://github.com/qq15725/modern-pdf/compare/v1.2.5...v1.2.6) (2025-04-16)
 
 
