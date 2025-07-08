@@ -1,9 +1,9 @@
 import { Resource } from './Resource'
 
-export type Encoding =
-  | '/WinAnsiEncoding'
-  | '/Identity-H'
-  | string
+export type Encoding
+  = | '/WinAnsiEncoding'
+    | '/Identity-H'
+    | string
 
 export interface FontOptions {
   baseFont?: string

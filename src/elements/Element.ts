@@ -1,7 +1,7 @@
-import type { ElementDeclaration, Element as IDocElement } from 'modern-idoc'
+import type { Element as IDocElement, NormalizedElement } from 'modern-idoc'
 import type { Character, MeasureResult } from 'modern-text'
 import type { Page } from '../blocks'
-import type { PDF } from '../PDF'
+import type { Pdf } from '../Pdf'
 import type { Font, Resource, XObjectImage } from '../resources'
 import type { Writer } from '../Writer'
 import { colord, extend } from 'colord'
@@ -31,13 +31,13 @@ export const PI = Math.PI
 export const DEG_TO_RAD = PI / 180
 
 export class Element {
-  protected _source?: ElementDeclaration
+  protected _source?: NormalizedElement
   protected _image?: XObjectImage
   protected _text = new Text()
   protected _familyToFont = new Map<string, Font>()
   protected _measureResult?: MeasureResult
-  protected _pdf?: PDF
-  get pdf(): PDF {
+  protected _pdf?: Pdf
+  get pdf(): Pdf {
     if (!this._pdf)
       throw new Error('This element is missing pdf')
     return this._pdf
@@ -71,9 +71,9 @@ export class Element {
 
     const { foreground, text, style } = this._source
 
-    if (foreground?.src) {
+    if (foreground?.image) {
       items.push(
-        this.pdf.asset.addImage(foreground.src)
+        this.pdf.asset.addImage(foreground.image)
           .then(v => this._image = v),
       )
     }

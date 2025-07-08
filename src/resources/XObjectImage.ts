@@ -3,18 +3,18 @@ import type { Writer } from '../Writer'
 import { colord } from 'colord'
 import { XObject } from './XObject'
 
-export type ColorSpace =
-  | '/DeviceRGB'
-  | '/DeviceGray'
-  | '/DeviceCMYK'
-  | '/CalGray'
-  | '/CalRGB'
-  | '/Lab'
-  | '/ICCBased'
-  | '/Indexed'
-  | '/Pattern'
-  | '/Separation'
-  | '/DeviceN'
+export type ColorSpace
+  = | '/DeviceRGB'
+    | '/DeviceGray'
+    | '/DeviceCMYK'
+    | '/CalGray'
+    | '/CalRGB'
+    | '/Lab'
+    | '/ICCBased'
+    | '/Indexed'
+    | '/Pattern'
+    | '/Separation'
+    | '/DeviceN'
 
 export interface XObjectImageOptions extends ObjectBlockOptions {
   width?: number

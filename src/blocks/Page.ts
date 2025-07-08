@@ -1,6 +1,6 @@
 import type { Element as IDocElement, StyleDeclaration } from 'modern-idoc'
 import type { Element } from '../elements'
-import type { PDF } from '../PDF'
+import type { Pdf } from '../Pdf'
 import type { Resource } from '../resources'
 import type { Writer } from '../Writer'
 import type { Pages } from './Pages'
@@ -41,7 +41,7 @@ export class Page extends ObjectBlock {
     meta && this.setProperties(meta)
   }
 
-  override setPdf(pdf: PDF): this {
+  override setPdf(pdf: Pdf): this {
     this._parent = pdf._pages
     this._contents.setPdf(pdf)
     this._resources.setPdf(pdf)

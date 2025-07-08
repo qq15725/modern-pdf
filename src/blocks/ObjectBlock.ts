@@ -2,13 +2,13 @@ import type { Writer } from '../Writer'
 import { zlibSync } from 'fflate'
 import { Block } from './Block'
 
-export type Filter =
-  | '/FlateDecode'
-  | '/DCTDecode'
-  | '/JPXDecode'
-  | '/CCITTFaxDecode'
-  | '/RunLengthDecode'
-  | '/LZWDecode'
+export type Filter
+  = | '/FlateDecode'
+    | '/DCTDecode'
+    | '/JPXDecode'
+    | '/CCITTFaxDecode'
+    | '/RunLengthDecode'
+    | '/LZWDecode'
 
 export interface ObjectBlockOptions {
   data?: Uint8Array

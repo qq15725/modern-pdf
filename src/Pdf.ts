@@ -7,23 +7,23 @@ import { Element } from './elements'
 import { FontType0, FontType1 } from './resources'
 import { Writer } from './Writer'
 
-export type PageLayout =
-  | '/SinglePage'
-  | '/OneColumn'
-  | '/TwoColumnLeft'
-  | '/TwoColumnRight'
-  | '/TwoPageLeft'
-  | '/TwoPageRight'
+export type PageLayout
+  = | '/SinglePage'
+    | '/OneColumn'
+    | '/TwoColumnLeft'
+    | '/TwoColumnRight'
+    | '/TwoPageLeft'
+    | '/TwoPageRight'
 
-export type PageMode =
-  | '/UseNone'
-  | '/UseOutlines'
-  | '/UseThumbs'
-  | '/FullScreen'
-  | '/UseOC'
-  | '/UseAttachments'
+export type PageMode
+  = | '/UseNone'
+    | '/UseOutlines'
+    | '/UseThumbs'
+    | '/FullScreen'
+    | '/UseOC'
+    | '/UseAttachments'
 
-export interface PDFOptionMeta {
+export interface PdfOptionMeta {
   id?: string
   colorSpace?: 'rgb' | 'cmyk'
   // catalog
@@ -42,11 +42,11 @@ export interface PDFOptionMeta {
 
 export interface PDFOptions extends IDocDocument {
   fonts?: Fonts
-  meta?: PDFOptionMeta
+  meta?: PdfOptionMeta
   children?: PageOptions[]
 }
 
-export class PDF {
+export class Pdf {
   static version = __VERSION__
 
   fonts?: Fonts
@@ -68,8 +68,8 @@ export class PDF {
   author?: string
   creationDate = new Date()
   modDate = new Date()
-  creator = `modern-pdf@^${PDF.version}`
-  producer = `modern-pdf@^${PDF.version}`
+  creator = `modern-pdf@^${Pdf.version}`
+  producer = `modern-pdf@^${Pdf.version}`
 
   // Catalog
   pageLayout?: PageLayout
