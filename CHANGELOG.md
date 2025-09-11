@@ -1,3 +1,12 @@
+## [1.3.1](https://github.com/qq15725/modern-pdf/compare/v1.3.0...v1.3.1) (2025-09-11)
+
+
+### Bug Fixes
+
+* Page MediaBox ([77fda8a](https://github.com/qq15725/modern-pdf/commit/77fda8a54927a937d5f909af03a7d69c530b67ae))
+
+
+
 # [1.3.0](https://github.com/qq15725/modern-pdf/compare/v1.2.6...v1.3.0) (2025-07-08)
 
 
