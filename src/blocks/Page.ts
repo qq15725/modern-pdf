@@ -1,9 +1,10 @@
-import type { Element as IDocElement, StyleDeclaration } from 'modern-idoc'
+import type { Element as IDocElement, NormalizedStyle } from 'modern-idoc'
 import type { Element } from '../elements'
 import type { Pdf } from '../Pdf'
 import type { Resource } from '../resources'
 import type { Writer } from '../Writer'
 import type { Pages } from './Pages'
+import { normalizeElement } from 'modern-idoc'
 import { Resources } from '../resources'
 import { Contents } from './Contents'
 import { ObjectBlock } from './ObjectBlock'
@@ -21,7 +22,7 @@ export interface PageOptions extends IDocElement {
 }
 
 export class Page extends ObjectBlock {
-  style: Partial<StyleDeclaration>
+  style: NormalizedStyle
 
   cropBox?: number[]
   bleedBox?: number[]
@@ -36,7 +37,7 @@ export class Page extends ObjectBlock {
 
   constructor(options: PageOptions = {}) {
     super()
-    const { style = {}, meta } = options
+    const { style = {}, meta } = normalizeElement(options)
     this.style = style
     meta && this.setProperties(meta)
   }
@@ -74,8 +75,6 @@ export class Page extends ObjectBlock {
   override writeTo(writer: Writer): void {
     const {
       rotate = 0,
-      left = 0,
-      top = 0,
       width = 0,
       height = 0,
     } = this.style
@@ -89,7 +88,7 @@ export class Page extends ObjectBlock {
         '/Resources': this._resources,
         '/Contents': this._contents,
         '/Rotate': rotate,
-        '/MediaBox': [left, top, width, height],
+        '/MediaBox': [0, 0, width, height],
         '/CropBox': this.cropBox,
         '/BleedBox': this.bleedBox,
         '/TrimBox': this.trimBox,
