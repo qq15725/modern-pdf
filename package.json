@@ -58,13 +58,13 @@
     "colord": "^2.9.3",
     "fflate": "^0.8.2",
     "modern-font": "^0.4.1",
-    "modern-idoc": "^0.8.9",
+    "modern-idoc": "^0.9.2",
     "modern-path2d": "^1.4.9",
-    "modern-text": "^1.7.6"
+    "modern-text": "^1.8.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.3.0",
-    "@types/node": "^24.3.1",
+    "@types/node": "^24.5.1",
     "bumpp": "^10.2.3",
     "conventional-changelog-cli": "^5.0.0",
     "eslint": "^9.35.0",
