@@ -82,7 +82,7 @@ export class Element {
       this._text.fonts = this.pdf.fonts
       this._text.content = text.content
       this._text.style = { ...style }
-      this._text.updateParagraphs()
+      this._text.update()
       this._text.paragraphs.forEach((paragraph) => {
         paragraph.fragments.forEach((fragment) => {
           const content = fragment.content
