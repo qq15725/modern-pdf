@@ -105,6 +105,11 @@ export class Asset {
     })
   }
 
+  /** Rasterize an SVG document string into an image XObject (via the SVG data URL path). */
+  addSvg(svg: string): Promise<XObjectImage> {
+    return this.addImage(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`)
+  }
+
   addFont(family: string, resource?: Font): Promise<Font> {
     return this._load(family, () => {
       if (resource) {
