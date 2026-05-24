@@ -1,3 +1,13 @@
+# [1.5.0](https://github.com/qq15725/modern-pdf/compare/v1.4.0...v1.5.0) (2026-05-24)
+
+
+### Features
+
+* support more idoc element features ([15cd971](https://github.com/qq15725/modern-pdf/commit/15cd971ca5477f9e8f84d4ca723c4b1c5fbf52f6))
+* up deps ([b54497d](https://github.com/qq15725/modern-pdf/commit/b54497d201a6bbbcd231414d7e3aca07c237b3c9))
+
+
+
 # [1.4.0](https://github.com/qq15725/modern-pdf/compare/v1.3.2...v1.4.0) (2025-12-29)
 
 
