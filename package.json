@@ -56,24 +56,24 @@
   },
   "dependencies": {
     "colord": "^2.9.3",
-    "fflate": "^0.8.2",
-    "modern-font": "^0.4.4",
-    "modern-idoc": "^0.10.8",
-    "modern-path2d": "^1.4.16",
-    "modern-text": "^1.10.7"
+    "fflate": "^0.8.3",
+    "modern-font": "^0.6.0",
+    "modern-idoc": "^0.11.8",
+    "modern-path2d": "^1.7.0",
+    "modern-text": "^2.0.3"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^6.7.3",
-    "@types/node": "^25.0.3",
-    "bumpp": "^10.3.2",
+    "@antfu/eslint-config": "^9.0.0",
+    "@types/node": "^25.9.1",
+    "bumpp": "^11.1.0",
     "conventional-changelog-cli": "^5.0.0",
-    "eslint": "^9.39.2",
-    "lint-staged": "^16.2.7",
+    "eslint": "^10.4.0",
+    "lint-staged": "^17.0.5",
     "simple-git-hooks": "^2.13.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "unbuild": "^3.6.1",
-    "vite": "^7.3.0",
-    "vitest": "^4.0.16"
+    "vite": "^8.0.14",
+    "vitest": "^4.1.7"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"
